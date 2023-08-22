@@ -2,7 +2,7 @@
 # Height-diameter allometry for a dominant palm in Puerto Rico to improve understanding carbon and forest dynamics
 
 #########################################################################
-# Set working directory on the file the scrit is located
+# Set working directory on the folder the script is located
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 #########################################################################
