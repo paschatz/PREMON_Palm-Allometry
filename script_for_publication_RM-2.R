@@ -15,6 +15,7 @@ dir.create('tables')
 library(EDIutils)
 library(BIOMASS)
 library(viridis)
+library(FSA)
 
 data <- read.csv("Data_for_analysis.csv")
 
@@ -118,7 +119,6 @@ goodness_fit <- cbind(AIC_table, r2, rse, rmse, coeffs, pvals)
 goodness_fit
 
 write.csv(goodness_fit, file="tables/Table2.csv")
-
 
 
 #########################################################################
@@ -226,12 +226,10 @@ bd_goodness_fit
 write.csv(bd_goodness_fit, file="tables/Table2-basaldiam.csv")
 
 
-
-
 ################################################
 ## Figure 1: Compare fits of different H:D models
 
-pdf("Figure 1.pdf", width = 12, height=6)
+pdf("figures/Figure 1.pdf", width = 12, height=6)
 
 par(mfrow=c(1,2))
 cols <- c('#0072BD','#D95319','#EDB120','#7E2F8E','#A2142F','#4DBEEE','#77AC30')
@@ -326,19 +324,17 @@ lines(seq(1,50,length.out=1000),
       predict(bd_fullmod_list[[7]], newdata=data.frame(D=seq(1,50,length.out=1000))),
       lwd=1.5, col=cols[7])
 
-legend('topleft', legend=c("(1) Linear", 
-                           "(2) Log-Linear", 
-                           "(3) Log-Log", 
-                           "(4) Power Law",
-                           "(5) Log-Log Quadratic I (single-term)",
-                           "(6) Log-Log Quadratic II (double-term)",
-                           "(7) Weibull"), 
+legend('topleft', legend=c("(1b) Linear", 
+                           "(2b) Log-Linear", 
+                           "(3b) Log-Log", 
+                           "(4b) Power Law",
+                           "(5b) Log-Log Quadratic I (single-term)",
+                           "(6b) Log-Log Quadratic II (double-term)",
+                           "(7b) Weibull"), 
        bty='n', lwd=c(rep(1.5,5),4,rep(1.5,1)), cex = 0.9,
        col=cols, text.font=c(rep(1,5),2,1))
 
 dev.off()
-
-
 
 
 ################################################################
@@ -387,7 +383,7 @@ good_env_fit
 ################################################
 ### Figure 2. Environmental effects on slenderness ratio
 
-pdf("Figure 2.pdf", width = 7, height = 2.5)
+pdf("figures/Figure 2.pdf", width = 7, height = 2.5)
 
 par(mfrow=c(1,3), mar=c(4.5,4.5,1,1))
 
@@ -474,9 +470,7 @@ biom_diff <- round(rbind(((agb[,1] - agb[,1])/agb[,1])*100,
                         ((agb[,3] - agb[,1])/agb[,1])*100), digits=2)
 
 ################################################
-dev.off()
-
-pdf("Figure 3.pdf")
+pdf("figures/Figure 3.pdf")
 
 plot_agb <- barplot(unlist(agb[1,]), beside=TRUE,
                     names.arg=c("Measured", "Inferred", "Goodman"),
@@ -530,8 +524,6 @@ lfdp$DBH <- lfdp$DBH * 0.1
 lfdp$basal_area <- (pi*((lfdp$DBH/2)^2)/10000) #m^2
 
 ### Calculate non-palm AGB using the BIOMASS pacakge
-library(BIOMASS)
-
 # Get wood density values for non-palm trees
 wd <- getWoodDensity(genus=unlist(lapply(strsplit(lfdp$Latin, " "), function(x)x[[1]])),
                 species=unlist(lapply(strsplit(lfdp$Latin, " "), function(x)x[[2]])))
@@ -571,8 +563,7 @@ goodman <- tapply((premon_total$agb_goodman/1000)/16,
 bio_dif <- rbind(NA, ((goodman - lugo) / (lugo)) * 100)
 
 ################################################
-dev.off()
-pdf("Figure 4.pdf")
+pdf("figures/Figure 4.pdf")
 Y <- barplot(rbind(lugo, goodman), beside = TRUE, 
              names.arg = c("1990", "1994", "2000", "2005", "2011", "2016"),
              col = viridis(2),
@@ -585,18 +576,15 @@ legend('topleft', legend = c("Frangi and Lugo (1985)",
 axis(1, at = Y, labels = F)
 pct <- round(bio_dif, 1)
 text(Y[2,], goodman, labels = paste0(pct[2,],"%"), pos = 3)
+
 dev.off()
-
-
-
 
 ################################################
 ### Descriptive Figure 5 with (A) stem density, (B) basal area, and (C) AGB
 
 Year <- c(1990, 1994, 2000, 2005, 2011, 2016)
 
-dev.off()
-pdf("Figure 5.pdf", width = 7, height = 5)
+pdf("figures/Figure 5.pdf", width = 7, height = 5)
 
 par(mfrow=c(2,3), mar=c(4,4,1,1))
 
@@ -605,7 +593,7 @@ par(mfrow=c(2,3), mar=c(4,4,1,1))
 plot(Year, as.vector(table(lfdp$Census[!is.na(lfdp$DBH)]))/16, type='b', log='', 
      ylim=c(100, 8000), axes=F, pch=16,
      ylab="Stems per ha", )
-points(years, as.vector(table(premon_total$Census[!is.na(lfdp$DBH)]))/16, type='b', col='blue', pch=16)
+points(Year, as.vector(table(premon_total$Census[!is.na(lfdp$DBH)]))/16, type='b', col='blue', pch=16)
 legend('topright', legend=c("All LFDP stems", "P. acuminata"), text.font=c(1,3),
        col=c(1,'blue'), pch=1, lty=1, bty='n')
 axis(1); axis(2, las=2)
@@ -618,7 +606,7 @@ plot(Year, tapply(lfdp$basal_area[!is.na(lfdp$DBH)],
      ylim=c(0, 50),
      axes=F, pch=16,
      ylab="Basal area (m^2) per ha", )
-points(years, tapply(premon_total$basal_area[!is.na(premon_total$DBH)], 
+points(Year, tapply(premon_total$basal_area[!is.na(premon_total$DBH)], 
                      premon_total$Census[!is.na(premon_total$DBH)], 
                      sum, na.rm=T)/16, type='b', col='blue', pch=16)
 axis(1); axis(2, las=2)
@@ -631,7 +619,7 @@ plot(Year, tapply(lfdp$AGB[!is.na(lfdp$DBH)],
      ylim=c(0, 350),
      axes=F,
      ylab="AGB (Mg per ha)", pch=16)
-points(years, (tapply(premon_total$agb_lugo[!is.na(premon_total$DBH)], 
+points(Year, (tapply(premon_total$agb_lugo[!is.na(premon_total$DBH)], 
                      premon_total$Census[!is.na(premon_total$DBH)], 
                      sum, na.rm=T)/16)/1000, type='b', col='blue', pch=16)
 axis(1); axis(2, las=2)
@@ -674,7 +662,6 @@ axis(1); axis(2, las=2)
 mtext("F", line=-1, adj=0.05, font=2)
 
 dev.off()
-
 
 #######
 ## Scaling exponent
