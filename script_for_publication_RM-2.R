@@ -662,13 +662,3 @@ axis(1); axis(2, las=2)
 mtext("F", line=-1, adj=0.05, font=2)
 
 dev.off()
-
-#######
-## Scaling exponent
-library(smatr)
-SMA <- sma(log10(data$height) ~ log10(data$dbh), method = "SMA")
-# Slope of SMA is equal to 2.81
-
-# Reported value for P. decurrens (Avalos et al.) is 
-
-
