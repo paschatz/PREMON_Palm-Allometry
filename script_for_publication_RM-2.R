@@ -459,28 +459,48 @@ data$agb_FL_inferred <- 4.5 + 7.7 * (cf * exp(predict(fullmod_list$`loglogquad-1
 # Measured DBH with the Goodman et al. (2013) AGB model
 data$agb_Goodman <- exp(-3.3488 + 2.7483 * log(data$dbh))
 
+# Measured DBH with the Avalos et al. (2022) family-wise AGB model
+data$agb_Avalos <- 2 * (1.4 * exp(-4.77 + 2.82 * log(data$dbh)))
+
+# Measured Height with the Avalos et al. (2022) Prestoea decurrans AGB model
+# data$agb_Avalos_pd <- 2 * (1.05 * exp(-0.08 + 1.53 * log(data$height)))
+
 # Divide by 1000 to express in Mg and then by 16 to express it Mg/ha
 agb <- data.frame(agb_FL_measured=sum((data$agb_FL_measured/1000)/16, na.rm=T),
                   agb_FL_inferred=sum((data$agb_FL_inferred/1000)/16, na.rm=T),
-                  agb_G=sum((data$agb_Goodman/1000)/16, na.rm=T))
+                  agb_G=sum((data$agb_Goodman/1000)/16, na.rm=T),
+                  agb_A=sum((data$agb_Avalos/1000)/16, na.rm=T)
+                  # ,
+                  # agb_Apd=sum((data$agb_Avalos_pd/1000)/16, na.rm=T)
+                  )
 
 # Calculate % difference from base model (agb measured). 
 biom_diff <- round(rbind(((agb[,1] - agb[,1])/agb[,1])*100,
                         ((agb[,2] - agb[,1])/agb[,1])*100,
-                        ((agb[,3] - agb[,1])/agb[,1])*100), digits=2)
+                        ((agb[,3] - agb[,1])/agb[,1])*100,
+                        ((agb[,4] - agb[,1])/agb[,1])*100 
+                        # ,
+                        # ((agb[,5] - agb[,1])/agb[,1])*100
+                        ), digits=1)
 
 ################################################
-pdf("figures/Figure 3.pdf")
+dev.off()
+
+pdf("figures/Figure-3-20230901.pdf")
 
 plot_agb <- barplot(unlist(agb[1,]), beside=TRUE,
-                    names.arg=c("Measured", "Inferred", "Goodman"),
-                    col=viridis(3),
+                    names.arg=NA, 
+                    col=rev(viridis(4)),
                     ylab="Palm Above Ground Biomass (Mg / ha)", 
                     ylim=c(0,3.5), xlab="Alternative AGB models", main="")
 
-axis(1, at=plot_agb, labels=F)
+axis(1, at=plot_agb, labels=c("Frangi & Lugo (1985)
+(Measured height)", "Frangi & Lugo (1985)
+(Inferred height)", "Goodman et al.
+(2013)", "Avalos et al.
+(2022)"), cex.axis=0.75)
 pct1 <- biom_diff
-text(plot_agb, agb, labels=paste0(pct1,"%"), pos=3)
+text(plot_agb, agb, labels=c("Baseline", paste0(pct1[2:4],"%")), pos=3)
 
 dev.off()
 
@@ -554,28 +574,40 @@ premon_total$agb_lugo <- 4.5 + 7.7 * premon_total$height_est
 # Family-level models are only valid for individuals with Hstem > 3 m and 6<=DBH<=40 cm all of their models used as response variable Hstem NOT Htotal
 premon_total$agb_goodman <- exp(-3.3488 + 2.7483 * log(premon_total$DBH))
 
+# Measured DBH with the Avalos et al. (2022) family-wise AGB model
+premon_total$agb_avalos <- 2 * (1.4 * exp(-4.77 + 2.82 * log(premon_total$DBH)))
+
 lugo <- tapply((premon_total$agb_lugo/1000)/16, 
                premon_total$Census, sum, na.rm=TRUE)
 
 goodman <- tapply((premon_total$agb_goodman/1000)/16, 
                   premon_total$Census, sum, na.rm.=TRUE)
 
+avalos <- tapply((premon_total$agb_avalos/1000)/16, 
+                  premon_total$Census, sum, na.rm.=TRUE)
+
 bio_dif <- rbind(NA, ((goodman - lugo) / (lugo)) * 100)
+bio_dif2 <- rbind(NA, ((avalos - lugo) / (lugo)) * 100)
 
 ################################################
-pdf("figures/Figure 4.pdf")
-Y <- barplot(rbind(lugo, goodman), beside = TRUE, 
+pdf("figures/Figure 4-20230901.pdf")
+
+Y <- barplot(rbind(lugo, goodman, avalos), beside = TRUE, 
              names.arg = c("1990", "1994", "2000", "2005", "2011", "2016"),
-             col = viridis(2),
+             col = rev(viridis(4))[-2],
              ylab = "Palm Above Ground Biomass (Mg / ha) in the LFDP", 
              ylim = c(0,35), xlab = "Census", main = "")
 
 legend('topleft', legend = c("Frangi and Lugo (1985)", 
-                             "Goodman et. al. (2013) "), 
-       fill = viridis(2), bty = "n", pt.cex = 2)
-axis(1, at = Y, labels = F)
+                             "Goodman et. al. (2013)",
+                             "Avalos et al. (2022)"), 
+       fill = rev(viridis(4))[-2], 
+       bty = "n", pt.cex = 2)
+axis(1, at = Y[2,], labels = F)
 pct <- round(bio_dif, 1)
-text(Y[2,], goodman, labels = paste0(pct[2,],"%"), pos = 3)
+pct2 <- round(bio_dif2, 1)
+text(Y[2,], goodman-0.5, labels = paste0(pct[2,],"%"), pos=3, cex=0.65)
+text(Y[3,]+0.25, avalos-0.5, labels = paste0(pct2[2,],"%"), pos=3, cex=0.65)
 
 dev.off()
 
