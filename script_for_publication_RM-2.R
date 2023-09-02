@@ -614,9 +614,11 @@ dev.off()
 ################################################
 ### Descriptive Figure 5 with (A) stem density, (B) basal area, and (C) AGB
 
-Year <- c(1990, 1994, 2000, 2005, 2011, 2016)
+dev.off()
 
-pdf("figures/Figure 5.pdf", width = 7, height = 5)
+pdf("figures/Figure 5-20230902.pdf", width = 7, height = 5)
+
+Year <- c(1990, 1994, 2000, 2005, 2011, 2016)
 
 par(mfrow=c(2,3), mar=c(4,4,1,1))
 
@@ -650,7 +652,7 @@ plot(Year, tapply(lfdp$AGB[!is.na(lfdp$DBH)],
                    sum, na.rm=T)/16, type='b', 
      ylim=c(0, 350),
      axes=F,
-     ylab="AGB (Mg per ha)", pch=16)
+     ylab="Estimated AGB (Mg per ha)", pch=16)
 points(Year, (tapply(premon_total$agb_lugo[!is.na(premon_total$DBH)], 
                      premon_total$Census[!is.na(premon_total$DBH)], 
                      sum, na.rm=T)/16)/1000, type='b', col='blue', pch=16)
@@ -689,7 +691,7 @@ plot(Year, ((tapply(premon_total$agb_lugo[!is.na(premon_total$DBH)],
                lfdp$Census[!is.na(lfdp$DBH)], 
                sum, na.rm=T)/16), type='b', 
      ylim=c(0,1), axes=F,
-     ylab="Palm proportion of total AGB", col='red', pch=16)
+     ylab="Palm proportion of total estimated AGB", col='red', pch=16)
 axis(1); axis(2, las=2)
 mtext("F", line=-1, adj=0.05, font=2)
 
