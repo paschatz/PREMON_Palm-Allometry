@@ -2,10 +2,6 @@
 # Height-diameter allometry for a dominant palm in Puerto Rico to improve understanding carbon and forest dynamics
 
 #########################################################################
-# Set working directory on the folder the script is located
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
-#########################################################################
 # Organize working directory folders
 dir.create('figures')
 dir.create('tables')
@@ -17,7 +13,7 @@ library(BIOMASS)
 library(viridis)
 library(FSA)
 
-data <- read.csv("Data_for_analysis.csv")
+data <- read.csv('raw_data/Data_for_analysis.csv')
 
 #########################################################################
 # Q1: **Does P. acuminata exhibit a height-diameter relationship and, if so, what is the best model to fit this relationship?**
