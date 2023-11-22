@@ -30,7 +30,7 @@ names(mod_list) <- c("linear",
                      "weibull")
 
 # Duplicate for full data models
-fullmod_list <- mod_list 
+fullmod_list <- mod_list
 
 ########## Model fitting ##########
 set.seed(30)
@@ -39,8 +39,8 @@ for(i in 1:100) {
   test <- sample(1:nrow(data),
                  size = ceiling (nrow(data) * 0.632),
                  replace = FALSE)
-  fit <- data[rownames(data) %in% test,]
-  val <- data[!rownames(data) %in% test,]
+  fit <- data[rownames(data) %in% test, ]
+  val <- data[!rownames(data) %in% test, ]
   
   # Fit models on partitioned data
   mod_list[[1]][[i]] <- lm(height ~ dbh, data = fit)
@@ -48,7 +48,7 @@ for(i in 1:100) {
   mod_list[[3]][[i]] <- lm(log(height) ~ log(dbh), data = fit)
   mod_list[[4]][[i]] <- nls(height ~ a * (dbh ^ b), data = fit, start = list(a = 1, b = 1))
   mod_list[[5]][[i]] <- lm(log(height) ~ I(log(dbh)^2), data = fit)
-  mod_list[[6]][[i]] <- lm(log(height) ~ log(dbh) + I(log(dbh)^2), data=fit)
+  mod_list[[6]][[i]] <- lm(log(height) ~ log(dbh) + I(log(dbh)^2), data = fit)
   mod_list[[7]][[i]] <- modelHD(D = fit$dbh,
                                 H = fit$height,
                                 method = "weibull",
@@ -57,7 +57,7 @@ for(i in 1:100) {
   # Evaluate models on partitioned data
   # Compute correction factor for log-transformed prediction
   for(j in 1:6){
-    if(j %in% c(3,5,6)){
+    if(j %in% c(3, 5, 6)){
       cf <- logbtcf(mod_list[[j]][[i]])
       } else {
         cf <- 1
@@ -76,13 +76,13 @@ fullmod_list[[3]] <- lm(log(height) ~ log(dbh), data = data)
 fullmod_list[[4]] <- nls(height ~ a * (dbh ^ b), data = data, start = list(a = 1, b = 1))
 fullmod_list[[5]] <- lm(log(height) ~ I(log(dbh)^2), data = data)
 fullmod_list[[6]] <- lm(log(height) ~ log(dbh) + I(log(dbh)^2), data = data)
-fullmod_list[[7]] <- modelHD(D = data$dbh, H = data$height, 
+fullmod_list[[7]] <- modelHD(D = data$dbh, H = data$height,
                              method="weibull", useWeight = TRUE)$model
 
 ########## Compute AIC (full data) ##########
 AIC_table <- data.frame(AIC=round(do.call(rbind, lapply(fullmod_list, AIC)), 2))
 # Correction for AIC on models with log-transformed y variable
-AIC_table$AIC[c(3,5,6)] <- AIC_table$AIC[c(3,5,6)] + 2 * sum(log(data$height))
+AIC_table$AIC[c(3, 5, 6)] <- AIC_table$AIC[c(3, 5, 6)] + 2 * sum(log(data$height))
 AIC_table$deltaAIC <- AIC_table$AIC - min(AIC_table$AIC)
 AIC_table <- round(AIC_table, 1)
 
@@ -94,7 +94,7 @@ names(coeffs) <- letters[1:3]
 ########## R-squared (full data) ##########
 r2_list <- lapply(fullmod_list, function(x) summary(x)$r.squared)
 r2_list[which(unlist(lapply(r2_list, is.null)))] <- NA
-r2 <- round(data.frame(r2=do.call(rbind, r2_list)), 2)
+r2 <- round(data.frame(r2 = do.call(rbind, r2_list)), 2)
 
 ########## RSE (full data) ##########
 rse <- do.call(rbind, lapply(fullmod_list, function(x) summary(x)$sigma))
@@ -106,7 +106,7 @@ rmse <- round(data.frame(rmse_median = apply(rmse_list, 2, median),
                    rmse_sd = apply(rmse_list, 2, sd)), 2)
 
 ########## P-values (full data) ##########
-pvals <- lapply(fullmod_list, function(x) summary(x)$coefficients[,ncol(summary(x)$coefficients)][seq(1:3)])
+pvals <- lapply(fullmod_list, function(x) summary(x)$coefficients[, ncol(summary(x)$coefficients)][seq(1:3)])
 pvals <- as.data.frame(round(do.call(rbind, pvals), 2))
 names(pvals) <- paste0("p-val_", letters[1:3])
 
@@ -114,7 +114,7 @@ names(pvals) <- paste0("p-val_", letters[1:3])
 goodness_fit <- cbind(AIC_table, r2, rse, rmse, coeffs, pvals)
 goodness_fit
 
-write.csv(goodness_fit, file="tables/Table2.csv")
+write.csv(goodness_fit, file = "tables/Table2.csv")
 
 
 #########################################################################
@@ -132,19 +132,19 @@ names(bd_mod_list) <- c("linear",
                         "weibull")
 
 # Duplicate for full data models
-bd_fullmod_list <- bd_mod_list 
+bd_fullmod_list <- bd_mod_list
 
 ########## Model fitting ##########
 for(i in 1:100) {
   # Partition data for cross validation
   test <- sample(1:nrow(data),
-                 size = ceiling (nrow(data) * 0.632),
+                 size = ceiling(nrow(data) * 0.632),
                  replace = FALSE)
-  fit <- data[rownames(data) %in% test,]
-  val <- data[!rownames(data) %in% test,]
+  fit <- data[rownames(data) %in% test, ]
+  val <- data[!rownames(data) %in% test, ]
   
-  fit <- fit[!is.na(fit$basal_d),]
-  val <- val[!is.na(val$basal_d),]
+  fit <- fit[!is.na(fit$basal_d), ]
+  val <- val[!is.na(val$basal_d), ]
   
   # Fit models on partitioned data
   bd_mod_list[[1]][[i]] <- lm(height ~ basal_d, data = fit)
@@ -161,7 +161,7 @@ for(i in 1:100) {
   # Evaluate models on partitioned data
   # Compute correction factor for log-transformed prediction
   for(j in 1:6){
-    if(j %in% c(3,5,6)){
+    if(j %in% c(3, 5, 6)){
       cf <- logbtcf(bd_mod_list[[j]][[i]])
     } else {
       cf <- 1
@@ -177,9 +177,9 @@ for(i in 1:100) {
 bd_fullmod_list[[1]] <- lm(height ~ basal_d, data = data)
 bd_fullmod_list[[2]] <- lm(height ~ log(basal_d), data = data)
 bd_fullmod_list[[3]] <- lm(log(height) ~ log(basal_d), data = data)
-bd_fullmod_list[[4]] <- nls(height ~ a * (basal_d ^ b), data = data, start=list(a=1, b=2))
+bd_fullmod_list[[4]] <- nls(height ~ a * (basal_d ^ b), data = data, start = list(a=1, b=2))
 bd_fullmod_list[[5]] <- lm(log(height) ~ I(log(basal_d)^2), data=data)
-bd_fullmod_list[[6]] <- lm(log(height) ~ log(basal_d) + I(log(basal_d)^2), data=data)
+bd_fullmod_list[[6]] <- lm(log(height) ~ log(basal_d) + I(log(basal_d)^2), data = data)
 bd_fullmod_list[[7]] <- modelHD(D = data$basal_d, H = data$height, 
                                 method = "weibull", useWeight = TRUE)$model
 
@@ -199,11 +199,11 @@ names(coeffs) <- letters[1:3]
 ########## R-squared (full data) ##########
 r2_list <- lapply(bd_fullmod_list, function(x) summary(x)$r.squared)
 r2_list[which(unlist(lapply(r2_list, is.null)))] <- NA
-r2 <- round(data.frame(r2=do.call(rbind, r2_list)), 2)
+r2 <- round(data.frame(r2 = do.call(rbind, r2_list)), 2)
 
 ########## RSE (full data) ##########
 rse <- do.call(rbind, lapply(bd_fullmod_list, function(x) summary(x)$sigma))
-rse <- round(data.frame(rse=rse), 2)
+rse <- round(data.frame(rse = rse), 2)
 
 ########## RMSE (partitioned data) ##########
 rmse_list <- do.call(cbind, lapply(bd_mod_list, function(x) do.call(c, lapply(x, function(y) y$rmse))))
@@ -219,7 +219,7 @@ names(pvals) <- paste0("p-val_", letters[1:3])
 bd_goodness_fit <- cbind(AIC_table, r2, rse, rmse, coeffs, pvals)
 bd_goodness_fit
 
-write.csv(bd_goodness_fit, file="tables/Table2-basaldiam.csv")
+write.csv(bd_goodness_fit, file = "tables/Table2-basaldiam.csv")
 
 
 ################################################
@@ -228,20 +228,20 @@ write.csv(bd_goodness_fit, file="tables/Table2-basaldiam.csv")
 pdf("figures/Figure_1.pdf", width = 12, height = 6)
 
 par(mfrow = c(1,2))
-cols <- c('#0072BD','#D95319','#EDB120','#7E2F8E','#A2142F','#4DBEEE','#77AC30')
+cols <- c('#0072BD', '#D95319', '#EDB120', '#7E2F8E', '#A2142F', '#4DBEEE', '#77AC30')
 
 # Panel A (DBH)
 plot(data$dbh, data$height,
-     main = "", xlab = "DBH (cm)", 
-     ylab = "Stem height (m)", pch = 16, 
-     col = rgb(0,0,0,0.15), ylim = c(0, 20), bty = "L")
+     main = "", xlab = "DBH (cm)",
+     ylab = "Stem height (m)", pch = 16,
+     col = rgb(0, 0, 0, 0.15), ylim = c(0, 20), bty = "L")
 
 mtext("A", line = -1, adj = 0.95, font = 2)
 nd <- data.frame(dbh = seq(0, 50, length.out = 1000))
 
 cf <- logbtcf(fullmod_list[[5]])
-lines(seq(1, 50, length.out=1000),
-      cf * exp(predict(fullmod_list[[5]], newdata=nd)),
+lines(seq(1, 50, length.out = 1000),
+      cf * exp(predict(fullmod_list[[5]], newdata = nd)),
       col = cols[5], lwd = 5, type = "l")
 
 lines(seq(0, 50, length.out = 1000),
@@ -266,69 +266,69 @@ lines(seq(1, 50, length.out = 1000),
       cf * exp(predict(fullmod_list[[6]], newdata = nd)),
       col = cols[6], lwd = 1.5, type = "l")
 
-lines(seq(1, 50, length.out = 1000), 
-      predict(fullmod_list[[7]], newdata = data.frame(D = seq(1, 50, length.out=1000))),
+lines(seq(1, 50, length.out = 1000),
+      predict(fullmod_list[[7]], newdata = data.frame(D = seq(1, 50, length.out = 1000))),
       lwd = 1.5, col = cols[7])
 
-legend('topleft', legend=c("(1) Linear", 
-                           "(2) Log-Linear", 
-                           "(3) Log-Log", 
-                           "(4) Power Law",
-                           "(5) Log-Log Quadratic I (single-term)",
-                           "(6) Log-Log Quadratic II (double-term)",
-                           "(7) Weibull"), 
+legend('topleft', legend = c("(1) Linear",
+                             "(2) Log-Linear",
+                             "(3) Log-Log",
+                             "(4) Power Law",
+                             "(5) Log-Log Quadratic I (single-term)",
+                             "(6) Log-Log Quadratic II (double-term)",
+                             "(7) Weibull"),
        bty = 'n', lwd = c(rep(1.5, 4), 4, rep(1.5, 2)), cex = 0.9,
        col = cols, text.font = c(rep(1, 4), 2, 1, 1))
 
 # Panel B (basal diameter)
 plot(data$basal_d, data$height,
-     main="", xlab="Basal diameter (cm)", 
-     ylab="Stem height (m)", pch=16, 
-     col=rgb(0,0,0,0.15), ylim=c(0, 20), bty="L")
-mtext("B", line=-1, adj=0.95, font=2)
+     main = "", xlab = "Basal diameter (cm)", 
+     ylab = "Stem height (m)", pch = 16, 
+     col = rgb(0, 0, 0, 0.15), ylim = c(0, 20), bty = "L")
+mtext("B", line = -1, adj = 0.95, font = 2)
 
-nd <- data.frame(basal_d=seq(0,50,length.out=1000))
+nd <- data.frame(basal_d = seq(0, 50, length.out = 1000))
 
 cf <- logbtcf(bd_fullmod_list[[6]])
-lines(seq(1,50,length.out=1000),
-      cf * exp(predict(bd_fullmod_list[[6]], newdata=nd)),
-      col=cols[6], lwd=5, type="l")
+lines(seq(1, 50, length.out = 1000),
+      cf * exp(predict(bd_fullmod_list[[6]], newdata = nd)),
+      col = cols[6], lwd = 5, type = "l")
 
-lines(seq(0,50,length.out=1000),
-      predict(bd_fullmod_list[[1]], newdata=nd),
-      col=cols[1], lwd=1.5, type="l")
+lines(seq(0, 50, length.out = 1000),
+      predict(bd_fullmod_list[[1]], newdata = nd),
+      col = cols[1], lwd = 1.5, type = "l")
 
-lines(seq(0,50,length.out=1000),
-      predict(bd_fullmod_list[[2]], newdata=nd),
-      col=cols[2], lwd=1.5, type="l")
+lines(seq(0, 50, length.out = 1000),
+      predict(bd_fullmod_list[[2]], newdata = nd),
+      col = cols[2], lwd = 1.5, type = "l")
 
 cf <- logbtcf(bd_fullmod_list[[3]])
-lines(seq(1,50,length.out=1000),
-      cf * exp(predict(bd_fullmod_list[[3]], newdata=nd)),
-      col=cols[3], lwd=1.5, type="l")
+lines(seq(1, 50, length.out = 1000),
+      cf * exp(predict(bd_fullmod_list[[3]], newdata = nd)),
+      col = cols[3], lwd = 1.5, type = "l")
 
-lines(seq(1,50,length.out=1000),
-      predict(bd_fullmod_list[[4]], newdata=nd),
-      col=cols[4], lwd=1.5, type="l")
+lines(seq(1, 50, length.out = 1000),
+      predict(bd_fullmod_list[[4]], newdata = nd),
+      col = cols[4], lwd = 1.5, type = "l")
 
 cf <- logbtcf(bd_fullmod_list[[5]])
-lines(seq(1,50,length.out=1000),
-      cf * exp(predict(bd_fullmod_list[[5]], newdata=nd)),
-      col=cols[5], lwd=1.5, type="l")
+lines(seq(1, 50, length.out = 1000),
+      cf * exp(predict(bd_fullmod_list[[5]], newdata = nd)),
+      col = cols[5], lwd = 1.5, type = "l")
 
-lines(seq(1,50,length.out=1000), 
-      predict(bd_fullmod_list[[7]], newdata=data.frame(D=seq(1,50,length.out=1000))),
-      lwd=1.5, col=cols[7])
+lines(seq(1, 50, length.out = 1000), 
+      predict(bd_fullmod_list[[7]], newdata = data.frame(D=seq(1, 50, length.out = 1000))),
+      lwd = 1.5, col = cols[7])
 
-legend('topleft', legend=c("(1b) Linear", 
-                           "(2b) Log-Linear", 
-                           "(3b) Log-Log", 
-                           "(4b) Power Law",
-                           "(5b) Log-Log Quadratic I (single-term)",
-                           "(6b) Log-Log Quadratic II (double-term)",
-                           "(7b) Weibull"), 
-       bty='n', lwd=c(rep(1.5,5),4,rep(1.5,1)), cex = 0.9,
-       col=cols, text.font=c(rep(1,5),2,1))
+legend('topleft', legend = c("(1b) Linear",
+                             "(2b) Log-Linear",
+                             "(3b) Log-Log",
+                             "(4b) Power Law",
+                             "(5b) Log-Log Quadratic I (single-term)",
+                             "(6b) Log-Log Quadratic II (double-term)",
+                             "(7b) Weibull"),
+       bty = 'n', lwd = c(rep(1.5, 5), 4, rep(1.5, 1)), cex = 0.9,
+       col = cols, text.font = c(rep(1, 5), 2, 1))
 
 dev.off()
 
@@ -359,16 +359,16 @@ rse_env <- round(summary(m0.z)$sigma, 3)
 r2_env <- round(summary(m0.z)$r.squared, 3)
 
 # p-values
-p_value_intercept <- summary(m0.z)$coefficient[1,4]
+p_value_intercept <- summary(m0.z)$coefficient[1, 4]
 
-p_value_slope <- c(summary(m0.z)$coefficient["Elev.z",4],
-                   summary(m0.z)$coefficient["Slope.z",4],
-                   summary(m0.z)$coefficient["lognci.z",4])
+p_value_slope <- c(summary(m0.z)$coefficient["Elev.z", 4],
+                   summary(m0.z)$coefficient["Slope.z", 4],
+                   summary(m0.z)$coefficient["lognci.z", 4])
 
 # Final goodness of fit table.
-good_env_fit <- data.frame(rse = rse_env, 
-                           r2 = r2_env, 
-                           int_pval = round(p_value_intercept, 3), 
+good_env_fit <- data.frame(rse = rse_env,
+                           r2 = r2_env,
+                           int_pval = round(p_value_intercept, 3),
                            elev_pval = round(p_value_slope[1], 3),
                            slope_pval = round(p_value_slope[2], 3),
                            nci_pval = round(p_value_slope[3], 3))
@@ -381,9 +381,9 @@ good_env_fit
 
 pdf("figures/Figure_2.pdf", width = 7, height = 2.5)
 
-par(mfrow=c(1,3), mar=c(4.5,4.5,1,1))
+par(mfrow = c(1, 3), mar = c(4.5, 4.5, 1, 1))
 
-# PLOT 
+# PLOT
 par(mfrow=c(1,3), mar=c(4.5,4.5,1,1))
 plot(data$Elev, data$SR, log='y', pch=16, col=rgb(0,0,0,0.35),
      xlab="Elevation (m)", ylab="Slenderness ratio (H/D)", cex.lab=1.25)
@@ -440,32 +440,43 @@ dev.off()
 # Q3: **How do estimates of palm AGB depend on H:D model selection?**
 ################################################################
 
+# UPDATE PCH 22/11/23
+# We used the same data in order to compare estimates of AGB with measured and infered height. 
+# A way to resolve it is to estimate AGB only for the validation set which contains palms 
+# which werent use to train the model. 
+# Just instead of using the data$ we can use the val$ data frame.
+
 # Calculate AGB for our measured palms and compare estimations when using inferred and measured height.
 # [Lugo's model](http://www.jstor.org/stable/1942582) is AGB = 4.5 + 7.7 \* Height (Kg).
 # [Goodman's model](https://www.sciencedirect.com/science/article/abs/pii/S0378112713006592?via%3Dihub) is applicable for Hstem \> 3 m and 6 \<= D \<= 40 cm.
 # Here I apply this model to trees SHORTER of 3m.
 
 # Measured height with the Frangi & Lugo (1985) AGB model
-data$agb_FL_measured <- 4.5 + 7.7 * data$height
+val$agb_FL_measured <- 4.5 + 7.7 * val$height
 
 # Height inferred by model (this study) with the Frangi & Lugo (1985) AGB model
-cf <- logbtcf(fullmod_list$`loglogquad-1`)
-data$agb_FL_inferred <- 4.5 + 7.7 * (cf * exp(predict(fullmod_list$`loglogquad-1`)))
+cf <- logbtcf(fullmod_list$`loglogquad-1`)[1:nrow(val)]
+prediction <- predict(fullmod_list$`loglogquad-1`)
+prediction <- prediction[1:nrow(val)]
+val$agb_FL_inferred <- 4.5 + 7.7 * (cf * exp(prediction))
+
+# This piece of code generates a problem because it calculates the AGB for the full dataset.
+val$agb_FL_inferred <- 4.5 + 7.7 * (cf * exp(predict(fullmod_list$`loglogquad-1`)))       # problem with this piece of code. 
 
 # Measured DBH with the Goodman et al. (2013) AGB model
-data$agb_Goodman <- exp(-3.3488 + 2.7483 * log(data$dbh))
+val$agb_Goodman <- exp(-3.3488 + 2.7483 * log(val$dbh))
 
 # Measured DBH with the Avalos et al. (2022) family-wise AGB model
-data$agb_Avalos <- 2 * (1.4 * exp(-4.77 + 2.82 * log(data$dbh)))
+val$agb_Avalos <- 2 * (1.4 * exp(-4.77 + 2.82 * log(val$dbh)))
 
 # Measured Height with the Avalos et al. (2022) Prestoea decurrans AGB model
 # data$agb_Avalos_pd <- 2 * (1.05 * exp(-0.08 + 1.53 * log(data$height)))
 
 # Divide by 1000 to express in Mg and then by 16 to express it Mg/ha
-agb <- data.frame(agb_FL_measured=sum((data$agb_FL_measured/1000)/16, na.rm=T),
-                  agb_FL_inferred=sum((data$agb_FL_inferred/1000)/16, na.rm=T),
-                  agb_G=sum((data$agb_Goodman/1000)/16, na.rm=T),
-                  agb_A=sum((data$agb_Avalos/1000)/16, na.rm=T)
+agb <- data.frame(agb_FL_measured = sum((val$agb_FL_measured / 1000) / 16, na.rm = T),
+                  agb_FL_inferred = sum((val$agb_FL_inferred / 1000) / 16, na.rm = T),
+                  agb_G = sum((val$agb_Goodman / 1000) / 16, na.rm = T),
+                  agb_A = sum((val$agb_Avalos / 1000) / 16, na.rm = T)
                   # ,
                   # agb_Apd=sum((data$agb_Avalos_pd/1000)/16, na.rm=T)
                   )
@@ -484,19 +495,21 @@ dev.off()
 
 pdf("figures/Figure_3.pdf")
 
-plot_agb <- barplot(unlist(agb[1,]), beside=TRUE,
-                    names.arg=NA, 
-                    col=rev(viridis(4)),
-                    ylab="Palm Above Ground Biomass (Mg / ha)", 
-                    ylim=c(0,3.5), xlab="Alternative AGB models", main="")
+plot_agb <- barplot(unlist(agb[1, ]), beside = TRUE,
+                    names.arg = NA,
+                    col = rev(viridis(4)),
+                    ylab = "Palm Above Ground Biomass (Mg / ha)",
+                    ylim = c(0, 1.5), xlab = "Alternative AGB models", main = "")
 
-axis(1, at=plot_agb, labels=c("Frangi & Lugo (1985)
+axis(1, at = plot_agb, labels = c("Frangi & Lugo (1985)
 (Measured height)", "Frangi & Lugo (1985)
 (Inferred height)", "Goodman et al.
 (2013)", "Avalos et al.
-(2022)"), cex.axis=0.75)
+(2022)"), 
+cex.axis = 0.75)
+
 pct1 <- biom_diff
-text(plot_agb, agb, labels=c("Baseline", paste0(pct1[2:4],"%")), pos=3)
+text(plot_agb, agb, labels = c("Baseline", paste0(pct1[2:4], "%")), pos = 3)
 
 dev.off()
 
