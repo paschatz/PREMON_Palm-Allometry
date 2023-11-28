@@ -3,8 +3,9 @@
 
 #########################################################################
 # Organize working directory folders
-dir.create('figures')
-dir.create('tables')
+
+if(!dir.exists("figures")){dir.create("figures")}
+if(!dir.exists("tables")){dir.create("tables")}
 
 #########################################################################
 # Load libraries and read data
@@ -440,78 +441,68 @@ dev.off()
 # Q3: **How do estimates of palm AGB depend on H:D model selection?**
 ################################################################
 
-# UPDATE PCH 22/11/23
-# We used the same data in order to compare estimates of AGB with measured and infered height. 
-# A way to resolve it is to estimate AGB only for the validation set which contains palms 
-# which werent use to train the model. 
-# Just instead of using the data$ we can use the val$ data frame.
-
 # Calculate AGB for our measured palms and compare estimations when using inferred and measured height.
-# [Lugo's model](http://www.jstor.org/stable/1942582) is AGB = 4.5 + 7.7 \* Height (Kg).
-# [Goodman's model](https://www.sciencedirect.com/science/article/abs/pii/S0378112713006592?via%3Dihub) is applicable for Hstem \> 3 m and 6 \<= D \<= 40 cm.
-# Here I apply this model to trees SHORTER of 3m.
+# [Frangi and Lugo 1985 model](http://www.jstor.org/stable/1942582)
+# [Goodman et al. 2013 model](https://www.sciencedirect.com/science/article/abs/pii/S0378112713006592?via%3Dihub)
+# [Avalos et al. 2022 model](https://www.frontiersin.org/articles/10.3389/ffgc.2022.867912/full)
 
-# Measured height with the Frangi & Lugo (1985) AGB model
-val$agb_FL_measured <- 4.5 + 7.7 * val$height
+# Frangi & Lugo (1985) AGB model with measured stem height
+data$agb_FL_measured <- 4.5 + 7.7 * data$height
 
-# Height inferred by model (this study) with the Frangi & Lugo (1985) AGB model
-cf <- logbtcf(fullmod_list$`loglogquad-1`)[1:nrow(val)]
-prediction <- predict(fullmod_list$`loglogquad-1`)
-prediction <- prediction[1:nrow(val)]
-val$agb_FL_inferred <- 4.5 + 7.7 * (cf * exp(prediction))
+# Goodman et al. (2013) family-wise AGB model with measured DBH
+data$agb_Goodman <- exp(-3.3488 + 2.7483 * log(data$dbh))
 
-# This piece of code generates a problem because it calculates the AGB for the full dataset.
-val$agb_FL_inferred <- 4.5 + 7.7 * (cf * exp(predict(fullmod_list$`loglogquad-1`)))       # problem with this piece of code. 
+# Avalos et al. (2022) family-wise AGB model with measured DBH
+data$agb_Avalos <- 2 * (1.4 * exp(-4.77 + 2.82 * log(data$dbh)))
 
-# Measured DBH with the Goodman et al. (2013) AGB model
-val$agb_Goodman <- exp(-3.3488 + 2.7483 * log(val$dbh))
+# Divide by 1000 to express in Mg and then by 16 to express it Mg
+agb <- data.frame(agb_FL_measured = sum((data$agb_FL_measured / 1000), na.rm = T),
+                  agb_G = sum((data$agb_Goodman / 1000), na.rm = T),
+                  agb_A = sum((data$agb_Avalos / 1000), na.rm = T))
 
-# Measured DBH with the Avalos et al. (2022) family-wise AGB model
-val$agb_Avalos <- 2 * (1.4 * exp(-4.77 + 2.82 * log(val$dbh)))
-
-# Measured Height with the Avalos et al. (2022) Prestoea decurrans AGB model
-# data$agb_Avalos_pd <- 2 * (1.05 * exp(-0.08 + 1.53 * log(data$height)))
-
-# Divide by 1000 to express in Mg and then by 16 to express it Mg/ha
-agb <- data.frame(agb_FL_measured = sum((val$agb_FL_measured / 1000) / 16, na.rm = T),
-                  agb_FL_inferred = sum((val$agb_FL_inferred / 1000) / 16, na.rm = T),
-                  agb_G = sum((val$agb_Goodman / 1000) / 16, na.rm = T),
-                  agb_A = sum((val$agb_Avalos / 1000) / 16, na.rm = T)
-                  # ,
-                  # agb_Apd=sum((data$agb_Avalos_pd/1000)/16, na.rm=T)
-                  )
-
-# Calculate % difference from base model (agb measured). 
 biom_diff <- round(rbind(((agb[,1] - agb[,1])/agb[,1])*100,
-                        ((agb[,2] - agb[,1])/agb[,1])*100,
-                        ((agb[,3] - agb[,1])/agb[,1])*100,
-                        ((agb[,4] - agb[,1])/agb[,1])*100 
-                        # ,
-                        # ((agb[,5] - agb[,1])/agb[,1])*100
-                        ), digits=1)
+                         ((agb[,2] - agb[,1])/agb[,1])*100,
+                         ((agb[,3] - agb[,1])/agb[,1])*100), digits=1)
 
 ################################################
+
+pdf("figures/Figure_3-v2.pdf")
+
+### DENSITY PLOTS OF INDIVDIUAL AGB ESTIMATES
+d1 <- density(data$agb_FL_measured)
+plot(d1, col=viridis(3)[1], 
+     xlab="Estimated AGB (kg)", lwd=3, main=NA,
+     ylim=c(0,0.0325), xlim=c(0,150))
+polygon(d1, col=scales::alpha(viridis(3)[1], 0.2), border="NA")
+
+d2 <- density(data$agb_Goodman)
+lines(d2, col=viridis(3)[2], lwd=3)
+polygon(d2, col=scales::alpha(viridis(3)[2], 0.2), border="NA")
+
+d3 <- density(data$agb_Avalos)
+lines(d3, col=viridis(3)[3], lwd=3)
+polygon(d3, col=scales::alpha(viridis(3)[3], 0.2), border="NA")
+
+legend('right', legend=c("Frangi & Lugo (1985)", 
+                            "Goodman et al. (2013)", 
+                            "Avalos et al. (2022)"), 
+       lwd=3, col=viridis(3), bty='n', pch=22, pt.lwd=1, pt.cex=2, 
+       pt.bg=scales::alpha(viridis(3), 0.2))
+
+boxplot(data$agb_FL_measured, data$agb_Goodman, data$agb_Avalos, 
+        col=viridis(3), horizontal=TRUE, add=TRUE, 
+        at=c(0.0325, 0.03, 0.0275), 
+        boxwex = 0.002, axes=F, outcol=viridis(3))
+
 dev.off()
 
-pdf("figures/Figure_3.pdf")
+# What is the median and sd of difference values between the different model estimates?
+round(median(data$agb_Goodman - data$agb_FL_measured), 2)
+round(sd(data$agb_Goodman - data$agb_FL_measured), 2)
 
-plot_agb <- barplot(unlist(agb[1, ]), beside = TRUE,
-                    names.arg = NA,
-                    col = rev(viridis(4)),
-                    ylab = "Palm Above Ground Biomass (Mg / ha)",
-                    ylim = c(0, 1.5), xlab = "Alternative AGB models", main = "")
+round(median(data$agb_Avalos - data$agb_FL_measured), 2)
+round(sd(data$agb_Avalos - data$agb_FL_measured), 2)
 
-axis(1, at = plot_agb, labels = c("Frangi & Lugo (1985)
-(Measured height)", "Frangi & Lugo (1985)
-(Inferred height)", "Goodman et al.
-(2013)", "Avalos et al.
-(2022)"), 
-cex.axis = 0.75)
-
-pct1 <- biom_diff
-text(plot_agb, agb, labels = c("Baseline", paste0(pct1[2:4], "%")), pos = 3)
-
-dev.off()
 
 
 ################################################################
@@ -577,8 +568,14 @@ premon_total <- subset(lfdp, Latin=="Prestoea acuminata" &
 cf <- logbtcf(fullmod_list$`loglogquad-1`)
 premon_total$height_est <- cf * exp(predict(fullmod_list$`loglogquad-1`, data.frame(dbh=premon_total$DBH)))
 
+# Estimate the lower and upper bounds of height to quantify a range of uncertainty
+premon_total$height_est_min <- cf * exp(predict(fullmod_list$`loglogquad-1`, data.frame(dbh=premon_total$DBH), interval = 'confidence'))[,2]
+premon_total$height_est_max <- cf * exp(predict(fullmod_list$`loglogquad-1`, data.frame(dbh=premon_total$DBH), interval = 'confidence'))[,3]
+
 # Estimate palm biomass using the Frangi & Lugo (1985) model
 premon_total$agb_lugo <- 4.5 + 7.7 * premon_total$height_est
+premon_total$agb_lugo_min <- 4.5 + 7.7 * premon_total$height_est_min
+premon_total$agb_lugo_max <- 4.5 + 7.7 * premon_total$height_est_max
 
 ### Estimate biomass using Family level equation Goodman et al. (2013)
 # Family-level models are only valid for individuals with Hstem > 3 m and 6<=DBH<=40 cm all of their models used as response variable Hstem NOT Htotal
@@ -589,35 +586,46 @@ premon_total$agb_avalos <- 2 * (1.4 * exp(-4.77 + 2.82 * log(premon_total$DBH)))
 
 lugo <- tapply((premon_total$agb_lugo/1000)/16, 
                premon_total$Census, sum, na.rm=TRUE)
+lugo_min <- tapply((premon_total$agb_lugo_min/1000)/16, 
+               premon_total$Census, sum, na.rm=TRUE)
+lugo_max <- tapply((premon_total$agb_lugo_max/1000)/16, 
+                   premon_total$Census, sum, na.rm=TRUE)
 
-goodman <- tapply((premon_total$agb_goodman/1000)/16, 
+goodman <- tapply((premon_total$agb_goodman/1000)/16,
                   premon_total$Census, sum, na.rm.=TRUE)
 
 avalos <- tapply((premon_total$agb_avalos/1000)/16, 
                   premon_total$Census, sum, na.rm.=TRUE)
 
-bio_dif <- rbind(NA, ((goodman - lugo) / (lugo)) * 100)
-bio_dif2 <- rbind(NA, ((avalos - lugo) / (lugo)) * 100)
+bio_dif <- rbind(NA, 
+                 ((goodman - lugo) / (lugo)) * 100,
+                 ((avalos - lugo) / (lugo)) * 100)
+
+round(100*(lugo_max - lugo_min)/lugo, 2)
+
+
 
 ################################################
-pdf("figures/Figure_4.pdf")
+pdf("figures/Figure_4-v2.pdf")
 
 Y <- barplot(rbind(lugo, goodman, avalos), beside = TRUE, 
              names.arg = c("1990", "1994", "2000", "2005", "2011", "2016"),
-             col = rev(viridis(4))[-2],
+             col = viridis(3),
              ylab = "Palm Above Ground Biomass (Mg / ha) in the LFDP", 
              ylim = c(0,35), xlab = "Census", main = "")
 
+arrows(Y[1,], lugo_min, Y[1,], lugo_max, angle = 90, code=3, len=0.05)
+arrows(Y[1,], lugo, Y[1,], lugo_min, angle = 90, code=2, len=0.05, col='white')
+
 legend('topleft', legend = c("Frangi and Lugo (1985)", 
-                             "Goodman et. al. (2013)",
+                             "Goodman et al. (2013)",
                              "Avalos et al. (2022)"), 
-       fill = rev(viridis(4))[-2], 
+       fill = viridis(3), 
        bty = "n", pt.cex = 2)
 axis(1, at = Y[2,], labels = F)
 pct <- round(bio_dif, 1)
-pct2 <- round(bio_dif2, 1)
 text(Y[2,], goodman-0.5, labels = paste0(pct[2,],"%"), pos=3, cex=0.65)
-text(Y[3,]+0.25, avalos-0.5, labels = paste0(pct2[2,],"%"), pos=3, cex=0.65)
+text(Y[3,]+0.25, avalos-0.5, labels = paste0(pct[3,],"%"), pos=3, cex=0.65)
 
 dev.off()
 
