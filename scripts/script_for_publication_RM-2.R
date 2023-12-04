@@ -38,7 +38,7 @@ set.seed(30)
 for(i in 1:100) {
   # Partition data for cross validation
   test <- sample(1:nrow(data),
-                 size = ceiling (nrow(data) * 0.632),
+                 size = ceiling(nrow(data) * 0.632),
                  replace = FALSE)
   fit <- data[rownames(data) %in% test, ]
   val <- data[!rownames(data) %in% test, ]
@@ -83,7 +83,8 @@ fullmod_list[[7]] <- modelHD(D = data$dbh, H = data$height,
 ########## Compute AIC (full data) ##########
 AIC_table <- data.frame(AIC=round(do.call(rbind, lapply(fullmod_list, AIC)), 2))
 # Correction for AIC on models with log-transformed y variable
-AIC_table$AIC[c(3, 5, 6)] <- AIC_table$AIC[c(3, 5, 6)] + 2 * sum(log(data$height))
+AIC_table$AIC[c(3, 5, 6)] <- AIC_table$AIC[c(3, 5, 6)] + 
+  2 * sum(log(data$height), na.rm=T)
 AIC_table$deltaAIC <- AIC_table$AIC - min(AIC_table$AIC)
 AIC_table <- round(AIC_table, 1)
 
@@ -102,7 +103,8 @@ rse <- do.call(rbind, lapply(fullmod_list, function(x) summary(x)$sigma))
 rse <- round(data.frame(rse = rse), 2)
 
 ########## RMSE (partitioned data) ##########
-rmse_list <- do.call(cbind, lapply(mod_list, function(x) do.call(c, lapply(x, function(y) y$rmse))))
+rmse_list <- do.call(cbind, 
+                     lapply(mod_list, function(x) do.call(c, lapply(x, function(y) y$rmse))))
 rmse <- round(data.frame(rmse_median = apply(rmse_list, 2, median),
                    rmse_sd = apply(rmse_list, 2, sd)), 2)
 
@@ -178,7 +180,8 @@ for(i in 1:100) {
 bd_fullmod_list[[1]] <- lm(height ~ basal_d, data = data)
 bd_fullmod_list[[2]] <- lm(height ~ log(basal_d), data = data)
 bd_fullmod_list[[3]] <- lm(log(height) ~ log(basal_d), data = data)
-bd_fullmod_list[[4]] <- nls(height ~ a * (basal_d ^ b), data = data, start = list(a=1, b=2))
+bd_fullmod_list[[4]] <- nls(height ~ a * (basal_d ^ b), data = data, 
+                            start = list(a=1, b=2))
 bd_fullmod_list[[5]] <- lm(log(height) ~ I(log(basal_d)^2), data=data)
 bd_fullmod_list[[6]] <- lm(log(height) ~ log(basal_d) + I(log(basal_d)^2), data = data)
 bd_fullmod_list[[7]] <- modelHD(D = data$basal_d, H = data$height, 
@@ -221,7 +224,6 @@ bd_goodness_fit <- cbind(AIC_table, r2, rse, rmse, coeffs, pvals)
 bd_goodness_fit
 
 write.csv(bd_goodness_fit, file = "tables/Table2-basaldiam.csv")
-
 
 ################################################
 ## Figure 1: Compare fits of different H:D models
