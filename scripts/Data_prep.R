@@ -1,15 +1,16 @@
 ####  Clean and merge raw data files for analysis data
 library(EDIutils)
 library(readr)
+library(tidyverse)
 
 ## Read field data
-data <- read.csv("raw_data/palm_allometry.csv")
+data_raw <- read_csv("raw_data/palm_allometry.csv")
 
 # Remove unused columns
-data$second.coord <- NULL
-data$wsg <- NULL
-data$exposure <- NULL
-data$h_dbh[data$height > 1.3 & is.na(data$h_dbh)] <- 1.30
+data <- data_raw %>%
+  select(-`second coord`, -exposure) %>%
+  # Update height of DBH
+  mutate(h_dbh = ifelse(height > 1.3 & is.na(h_dbh), 1.30, h_dbh))
 
 # "palm_allometry.csv" contains measurements of <i>P.acuminata</i> from January 2019. 
 # Tag = Unique tag number for the individual stem
@@ -43,8 +44,8 @@ data$SR <- data$height/(data$dbh*0.01)
 
 # write.csv(data, "Data_for_analysis-including-small-palms.csv", row.names = F)
 
-# Remove palms shorter than 1.3 m and where dbh was measured somewhere else than 1.3 m
-data <- data[data$height >= 1.3 &  data$h_dbh == 1.30,]
+# Remove unused columns
+data <- data %>%
+  filter(height >= 1.3, h_dbh == 1.30)
 
 write.csv(data, "raw_data/Data_for_analysis.csv", row.names = F)
-
