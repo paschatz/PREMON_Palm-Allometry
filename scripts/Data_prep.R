@@ -6,11 +6,13 @@ library(tidyverse)
 ## Read field data
 data_raw <- read_csv("raw_data/palm_allometry.csv")
 
+# Data for manipulation
+data <- data_raw
+
 # Remove unused columns
-data <- data_raw %>%
-  select(-`second coord`, -exposure) %>%
-  # Update height of DBH
-  mutate(h_dbh = ifelse(height > 1.3 & is.na(h_dbh), 1.30, h_dbh))
+data$second.coord <- NULL
+data$exposure <- NULL
+data$h_dbh[data$height > 1.3 & is.na(data$h_dbh)] <- 1.30
 
 # "palm_allometry.csv" contains measurements of <i>P.acuminata</i> from January 2019. 
 # Tag = Unique tag number for the individual stem
