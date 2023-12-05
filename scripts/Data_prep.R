@@ -20,12 +20,21 @@ data <- data_raw %>%
 # h_dbh = height at which dbh was measured (m)
 
 ## Read LFDP census data (census 6) to get quadrat of each (tagged) palm
+# Original data and packageId information here:
+# https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-luq.119.1545979
+
+# Access raw data
 raw6 <- EDIutils::read_data_entity(packageId = "knb-lter-luq.119.1545979", 
                                    entityId = "325c43057e0dd4e1cd6a13fa5125a76d")
+
+# Save raw data in machine readable format
 census6 <- readr::read_csv(file = raw6)
 data$quadrat <- census6$Quadrat[match(data$Tag, census6$Tag)]
 
 ## Read LFDP physical environment data
+# Original data and packageId information here:
+# https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-luq.47.381052
+
 rawenv <- EDIutils::read_data_entity(packageId = "knb-lter-luq.47.381050",
                                      entityId = "21c7cce729a96de675aaa9281526eb4a")
 env <- readr::read_csv(file = rawenv)
@@ -44,8 +53,7 @@ data$SR <- data$height/(data$dbh*0.01)
 
 # write.csv(data, "Data_for_analysis-including-small-palms.csv", row.names = F)
 
-# Remove unused columns
-data <- data %>%
-  filter(height >= 1.3, h_dbh == 1.30)
+# Remove palms shorter than 1.3 m and where dbh was measured somewhere else than 1.3 m
+data <- data[data$height >= 1.3 &  data$h_dbh == 1.30,]
 
 write.csv(data, "raw_data/Data_for_analysis.csv", row.names = F)
