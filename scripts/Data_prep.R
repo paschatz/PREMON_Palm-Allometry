@@ -58,4 +58,4 @@ data$SR <- data$height/(data$dbh*0.01)
 # Remove palms shorter than 1.3 m and where dbh was measured somewhere else than 1.3 m
 data <- data[data$height >= 1.3 &  data$h_dbh == 1.30,]
 
-write.csv(data, "raw_data/Data_for_analysis.csv", row.names = F)
+write.csv(data, "clean_data//Data_for_analysis.csv", row.names = FALSE)
