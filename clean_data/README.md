@@ -35,4 +35,6 @@ LFDP environmental data have spatial information according to the location of ea
 
 </div>
 
-<blockquote> where *dist*<sub>ij</sub> is the distance between the focal tree *i* and the neighboring tree *j*, and *DBH*<sub>j</sub> is the diameter at breast height of the neighboring tree *j*. We used the NCI as a measure of competition for light.</blockquote>
+<blockquote>
+  <p>where dist<sub>ij</sub> is the distance between the focal tree i and the neighboring tree j, and DBH<sub>j</sub> is the diameter at breast height of the neighboring tree j. We used the NCI as a measure of competition for light.</p>
+</blockquote>
