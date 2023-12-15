@@ -14,7 +14,7 @@ library(BIOMASS)
 library(viridis)
 library(FSA)
 
-data <- read.csv('raw_data/Data_for_analysis.csv')
+data <- read.csv('clean_data/Data_for_analysis.csv')
 
 #########################################################################
 # Q1: **Does P. acuminata exhibit a height-diameter relationship and, if so, what is the best model to fit this relationship?**
@@ -466,20 +466,20 @@ biom_diff <- round(rbind(((agb[,1] - agb[,1])/agb[,1])*100,
 
 ################################################
 
-pdf("figures/Figure_3-v2.pdf")
+pdf("figures/Figure_3.pdf")
 
 ### DENSITY PLOTS OF INDIVDIUAL AGB ESTIMATES
-d1 <- density(data$agb_FL_measured)
+d1 <- density(data$agb_FL_measured, na.rm=T)
 plot(d1, col=viridis(3)[1], 
      xlab="Estimated AGB (kg)", lwd=3, main=NA,
      ylim=c(0,0.0325), xlim=c(0,150))
 polygon(d1, col=scales::alpha(viridis(3)[1], 0.2), border="NA")
 
-d2 <- density(data$agb_Goodman)
+d2 <- density(data$agb_Goodman, na.rm=T)
 lines(d2, col=viridis(3)[2], lwd=3)
 polygon(d2, col=scales::alpha(viridis(3)[2], 0.2), border="NA")
 
-d3 <- density(data$agb_Avalos)
+d3 <- density(data$agb_Avalos, na.rm=T)
 lines(d3, col=viridis(3)[3], lwd=3)
 polygon(d3, col=scales::alpha(viridis(3)[3], 0.2), border="NA")
 
@@ -543,7 +543,7 @@ lfdp$DBH <- lfdp$DBH * 0.1
 # Calculate basal area
 lfdp$basal_area <- (pi*((lfdp$DBH/2)^2)/10000) #m^2
 
-### Calculate non-palm AGB using the BIOMASS pacakge
+### Calculate non-palm AGB using the BIOMASS package
 # Get wood density values for non-palm trees
 wd <- getWoodDensity(genus = unlist(lapply(strsplit(lfdp$Latin, " "), function(x)x[[1]])),
                 species = unlist(lapply(strsplit(lfdp$Latin, " "), function(x)x[[2]])))
@@ -606,7 +606,7 @@ round(100*(lugo_max - lugo_min)/lugo, 2)
 
 
 ################################################
-pdf("figures/Figure_4-v2.pdf")
+pdf("figures/Figure_4.pdf")
 
 Y <- barplot(rbind(lugo, goodman, avalos), beside = TRUE, 
              names.arg = c("1990", "1994", "2000", "2005", "2011", "2016"),
@@ -715,3 +715,82 @@ mtext("F", line=-1, adj=0.05, font=2)
 
 dev.off()
 
+
+### Supplemental Figures
+
+# Figure S1
+
+pdf("figures/Figure_S1.pdf")
+
+library(ggplot2)
+library(ggpubr)
+library(ggExtra)
+
+#Raw height:DBH plot
+raw_dbh <- ggplot(data, aes(x = dbh, y = height)) +
+  geom_point(size=2, shape=20, color = "gray45") +
+  xlab("") +
+  ylab("Stem Height (m)") + 
+  theme_minimal()
+
+#DBH density plot
+den_dbh <- ggplot(data, aes(x = dbh)) + 
+  geom_histogram(aes(y = ..density..),
+                 binwidth = 0.5, #breaks
+                 colour = "black", fill = "white") +
+  geom_density(alpha = 0.5, #density transparency
+               color = "black", fill = "blue") +
+  xlab("DBH (cm)") + 
+  ylab("Density") + 
+  theme_minimal()
+
+#Raw height:basal_d plot
+raw_basal <- ggplot(data, aes(x = basal_d, y = height)) +
+  geom_point(size=2, shape=20, color = "gray45") + 
+  xlab("") + 
+  ylab("") + 
+  theme_minimal()
+
+# Basal_diameter density plot
+
+den_basal <- ggplot(data, aes(x = basal_d, na.rm = TRUE)) + 
+  geom_histogram(aes(y = ..density..),
+                 binwidth = 1, #breaks
+                 colour = "black", fill = "white") +
+  geom_density(alpha = 0.5, #density transparency
+               color = "black", fill = "red1") +
+  xlab("Basal diameter (cm)") + 
+  ylab("") + 
+  theme_minimal()
+
+t1 <- ggMarginal(raw_basal + 
+                   theme_gray() + 
+                   xlab("Basal Diameter (cm)") +
+                   ylab("Stem height (m)") +
+                   theme_minimal(), fill="lightblue")
+
+t2 <- ggMarginal(raw_dbh + 
+                   theme_gray() +
+                   xlab("DBH (cm)") + 
+                   ylab("Stem Height") + 
+                   theme_minimal(), fill = "tomato")
+
+ggarrange(t1, t2,
+          labels = c("A", "B"),
+          ncol = 1, nrow = 2)
+
+dev.off()
+
+
+### Figure S2
+
+pdf("figures/Figure_S2.pdf")
+
+hist(census6$DBH[census6$Mnemonic=='PREMON']/10, main=NA, 
+     xlab="Diameter at breast height (D130) (cm)",
+     ylab="Number of palms")
+hist(data$dbh, add=T, col=2, breaks=20)
+legend('topleft', legend=c("LFDP 2016 Census", "January 2020 sampling"), 
+       pch=22, pt.bg=c('grey',2), pt.cex=2, inset=0.05)
+
+dev.off()
