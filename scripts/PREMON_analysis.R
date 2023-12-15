@@ -1,24 +1,20 @@
-#########################################################################
-# Height-diameter allometry for a dominant palm in Puerto Rico to improve understanding carbon and forest dynamics
+#### Height-diameter allometry for a dominant palm in Puerto Rico to improve understanding carbon and forest dynamics####
 
-#########################################################################
 # Organize working directory folders
 
 if(!dir.exists("figures")){dir.create("figures")}
 if(!dir.exists("tables")){dir.create("tables")}
 
-#########################################################################
-# Load libraries and read data
+#### Load libraries and read data ####
 library(EDIutils)
 library(BIOMASS)
 library(viridis)
 library(FSA)
+library(tidyverse)
 
 data <- read.csv('clean_data/Data_for_analysis.csv')
 
-#########################################################################
-# Q1: **Does P. acuminata exhibit a height-diameter relationship and, if so, what is the best model to fit this relationship?**
-#########################################################################
+#### Q1: **Does P. acuminata exhibit a height-diameter relationship and, if so, what is the best model to fit this relationship?** ####
 
 # Initialize lists to hold results of cross-validated and full-data models
 mod_list <- vector(mode = "list", length = 7)
@@ -117,10 +113,8 @@ goodness_fit
 
 write.csv(goodness_fit, file = "tables/Table2.csv")
 
+#### Q1b: **Does P. acuminata exhibit a height-diameter relationship and, if so, what is the best model to fit this relationship?** (basal diameter version) ####
 
-#########################################################################
-# Q1b: **Does P. acuminata exhibit a height-diameter relationship and, if so, what is the best model to fit this relationship?** (basal diameter version)
-#########################################################################
 
 # Initialize lists to hold results of cross-validated and full-data models
 bd_mod_list <- vector(mode = "list", length = 7)
@@ -222,9 +216,7 @@ bd_goodness_fit
 
 write.csv(bd_goodness_fit, file = "tables/Table2-basaldiam.csv")
 
-
-################################################
-## Figure 1: Compare fits of different H:D models
+#### Figure 1: Compare fits of different H:D models ####
 
 pdf("figures/Figure_1.pdf", width = 12, height = 6)
 
@@ -333,10 +325,7 @@ legend('topleft', legend = c("(1b) Linear",
 
 dev.off()
 
-
-################################################################
-# Q2. How does environmental heterogeneity mediate allometry of *P. acuminata*?
-################################################################
+#### Q2. How does environmental heterogeneity mediate allometry of *P. acuminata*? ####
 
 data$lognci <- log10(data$nci)
 
@@ -376,9 +365,7 @@ good_env_fit <- data.frame(rse = rse_env,
 
 good_env_fit
 
-
-################################################
-### Figure 2. Environmental effects on slenderness ratio
+#### Figure 2. Environmental effects on slenderness ratio ####
 
 pdf("figures/Figure_2.pdf", width = 7, height = 2.5)
 
@@ -436,10 +423,7 @@ lines(10^pred$lognci, conf_interval[,1], lwd=2, col=1)
 
 dev.off()
 
-
-################################################################
-# Q3: **How do estimates of palm AGB depend on H:D model selection?**
-################################################################
+#### Q3: **How do estimates of palm AGB depend on H:D model selection?** ####
 
 # Calculate AGB for our measured palms and compare estimations when using inferred and measured height.
 # [Frangi and Lugo 1985 model](http://www.jstor.org/stable/1942582)
@@ -464,11 +448,10 @@ biom_diff <- round(rbind(((agb[,1] - agb[,1])/agb[,1])*100,
                          ((agb[,2] - agb[,1])/agb[,1])*100,
                          ((agb[,3] - agb[,1])/agb[,1])*100), digits=1)
 
-################################################
-
+#### Figure 3 ####
 pdf("figures/Figure_3.pdf")
 
-### DENSITY PLOTS OF INDIVDIUAL AGB ESTIMATES
+### Density plots of individual AGB estimates ####
 d1 <- density(data$agb_FL_measured, na.rm=T)
 plot(d1, col=viridis(3)[1], 
      xlab="Estimated AGB (kg)", lwd=3, main=NA,
@@ -503,11 +486,8 @@ round(sd(data$agb_Goodman - data$agb_FL_measured), 2)
 round(median(data$agb_Avalos - data$agb_FL_measured), 2)
 round(sd(data$agb_Avalos - data$agb_FL_measured), 2)
 
+# **Q4: How does AGB of P. acuminata change during a 30 year period following a major hurricane period?** ####
 
-
-################################################################
-# **Q4: How does AGB of P. acuminata change during a 30 year period following a major hurricane period?**
-################################################################
 
 # Load census data with the [EDUutils](https://docs.ropensci.org/EDIutils/) library
 
@@ -603,9 +583,7 @@ bio_dif <- rbind(NA,
 
 round(100*(lugo_max - lugo_min)/lugo, 2)
 
-
-
-################################################
+# Figure 4 ####
 pdf("figures/Figure_4.pdf")
 
 Y <- barplot(rbind(lugo, goodman, avalos), beside = TRUE, 
@@ -629,8 +607,7 @@ text(Y[3,]+0.25, avalos-0.5, labels = paste0(pct[3,],"%"), pos=3, cex=0.65)
 
 dev.off()
 
-################################################
-### Descriptive Figure 5 with (A) stem density, (B) basal area, and (C) AGB
+# Descriptive Figure 5 with (A) stem density, (B) basal area, and (C) AGB ####
 
 dev.off()
 
@@ -709,31 +686,29 @@ plot(Year, ((tapply(premon_total$agb_lugo[!is.na(premon_total$DBH)],
                lfdp$Census[!is.na(lfdp$DBH)], 
                sum, na.rm=T)/16), type='b', 
      ylim=c(0,1), axes=F,
-     ylab="Palm proportion of total estimated AGB", col='red', pch=16)
-axis(1); axis(2, las=2)
-mtext("F", line=-1, adj=0.05, font=2)
+     ylab="Palm proportion of total estimated AGB", col = 'red', pch = 16)
+axis(1); axis(2, las = 2)
+mtext("F", line = -1, adj = 0.05, font = 2)
 
 dev.off()
 
 
-### Supplemental Figures
-
-# Figure S1
+# Supplemental Figures ####
+# Figure S1 ####
 
 pdf("figures/Figure_S1.pdf")
 
-library(ggplot2)
 library(ggpubr)
 library(ggExtra)
 
-#Raw height:DBH plot
+# Raw height:DBH plot
 raw_dbh <- ggplot(data, aes(x = dbh, y = height)) +
   geom_point(size=2, shape=20, color = "gray45") +
   xlab("") +
   ylab("Stem Height (m)") + 
   theme_minimal()
 
-#DBH density plot
+# DBH density plot
 den_dbh <- ggplot(data, aes(x = dbh)) + 
   geom_histogram(aes(y = ..density..),
                  binwidth = 0.5, #breaks
@@ -744,7 +719,7 @@ den_dbh <- ggplot(data, aes(x = dbh)) +
   ylab("Density") + 
   theme_minimal()
 
-#Raw height:basal_d plot
+# Raw height:basal_d plot
 raw_basal <- ggplot(data, aes(x = basal_d, y = height)) +
   geom_point(size=2, shape=20, color = "gray45") + 
   xlab("") + 
@@ -782,15 +757,15 @@ ggarrange(t1, t2,
 dev.off()
 
 
-### Figure S2
+# Figure S2 ####
 
 pdf("figures/Figure_S2.pdf")
 
-hist(census6$DBH[census6$Mnemonic=='PREMON']/10, main=NA, 
-     xlab="Diameter at breast height (D130) (cm)",
-     ylab="Number of palms")
-hist(data$dbh, add=T, col=2, breaks=20)
-legend('topleft', legend=c("LFDP 2016 Census", "January 2020 sampling"), 
-       pch=22, pt.bg=c('grey',2), pt.cex=2, inset=0.05)
+hist(census6$DBH[census6$Mnemonic == 'PREMON']/10, main = NA, 
+     xlab = "Diameter at breast height (D130) (cm)",
+     ylab = "Number of palms")
+hist(data$dbh, add = TRUE, col = 2, breaks = 20)
+legend('topleft', legend = c("LFDP 2016 Census", "January 2020 sampling"), 
+       pch = 22, pt.bg = c('grey',2), pt.cex = 2, inset = 0.05)
 
 dev.off()
