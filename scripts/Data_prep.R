@@ -57,7 +57,11 @@ data <- data[data$height >= 1.3 &  data$h_dbh == 1.30,]
 
 <<<<<<< HEAD
 write.csv(data, "raw_data/Data_for_analysis.csv", row.names = F)
+<<<<<<< HEAD
 =======
 write.csv(data, "raw_data/Data_for_analysis.csv", row.names = F)
+
+>>>>>>> parent of a49772c (fix subsetting)
+=======
 
 >>>>>>> parent of a49772c (fix subsetting)
