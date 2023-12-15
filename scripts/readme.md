@@ -6,6 +6,6 @@ We exported a final dataset where we stored our measured palms with the physical
 such as elevation, slope, and the crowding index. Additionally, we calculated the slenderness ratio (SR) for each palm. 
 SR was used as response variable for the multivariete regration in Q2. Finally, we filtered out individuals with height less
 than 1.3 m or dbh measured at a different height (than 1.30 m). These are also the conditions under which we parameterized the H:D model in Q1. 
-The resulting cleaned dataset is then saved as "raw_data/Data_for_analysis.csv" and used in ```PREMON_analysis_script.R```.
+The resulting cleaned dataset is then saved as "raw_data/Data_for_analysis.csv" and used in ```PREMON_analysis.R```.
 
-```PREMON_analysis_script.R``` contains all the code with which we generated the results of our manuscript. It is divided into sections that follow the specific four research questions of the manuscript. 
+```PREMON_analysis.R``` contains all the code with which we generated the results of our manuscript. It is divided into sections that follow the specific four research questions of the manuscript. 
