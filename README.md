@@ -8,16 +8,6 @@ Tropical forests are major components of Earth’s carbon stocks, but their dive
 ## Keywords: 
 Aboveground biomass, Arecaceae, environmental heterogeneity, forest dynamics, neotropics, *Prestoea acuminata var. montana* (Graham)
 
-## Citation:
-### To cite this manuscript:
-BLAH BLAH
-
-### To cite this repository:
-BLAH BLAH
-
-### To cite the data used for analysis:
-BLAH BLAH
-
 ### Folder description:
 - ```clean_data``` = Here you can find the clean data that we used for our analysis. This data are an export of ```scripts/PREMON_data_prep.r``` script.
 
