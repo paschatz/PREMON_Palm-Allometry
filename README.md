@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/600030070.svg)](https://zenodo.org/doi/10.5281/zenodo.10390497)
+
 # Height-diameter allometry for a dominant palm to improve understanding of carbon and forest dynamics in forests of Puerto Rico
 
 This is a publicly accessible implementation of our study, providing the R-script containing all statistical analyses, figures and tables. Upon the acceptance of our publication, we will also upload the raw data to EDI database for further accessibility. To run the code in a reproducible envoroment we recommend to run code through ```PREMON_allometry.Rproj```. This will set the working directory to the root of the project.
