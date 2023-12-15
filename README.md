@@ -10,6 +10,11 @@ Tropical forests are major components of Earth’s carbon stocks, but their dive
 ## Keywords: 
 Aboveground biomass, Arecaceae, environmental heterogeneity, forest dynamics, neotropics, *Prestoea acuminata var. montana* (Graham)
 
+## Citations:
+
+To cite this repository:
+
+- Paschalis Chatzopoulosand Bob Muscarella. Paschatz/premon_palm-allometry: Height-diameter Allometry for a Dominant Palm to Improve Understanding of Carbon and Forest Dynamics in Forests of Puerto Rico. v1.0.0, Zenodo, 15 Dec. 2023, doi:10.5281/zenodo.10390498.
 ### Folder description:
 - ```clean_data``` = Here you can find the clean data that we used for our analysis. This data are an export of ```scripts/PREMON_data_prep.r``` script.
 
