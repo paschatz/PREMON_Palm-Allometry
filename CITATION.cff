@@ -1,0 +1,10 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: Joe
+  given-names: Johnson
+orcid: https://orcid.org/0000-0000-0000-0000
+title:paschatz/PREMON_Palm-Allometry: Height-diameter allometry for a dominant palm to improve understanding of carbon and forest dynamics in forests of Puerto Rico
+version: v1.1.0
+date-released: 2023-12-16
+                          
