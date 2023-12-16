@@ -6,6 +6,7 @@ if(!dir.exists("figures")){dir.create("figures")}
 if(!dir.exists("tables")){dir.create("tables")}
 
 #### Load libraries and read data ####
+library(renv)
 library(EDIutils)
 library(BIOMASS)
 library(viridis)
@@ -15,6 +16,19 @@ library(ggpubr)
 library(ggExtra)
 
 data <- read.csv('clean_data/Data_for_analysis.csv')
+
+#### Reproducible environment ####
+
+#' This script has been developed within a reproducible environment.
+#' We used function renv::snapshot() which took a snapshot of the current state 
+#' of the project and saved it in the lockfile. This lockfile can be used to 
+#' restore the project to the state it was in when the snapshot was taken.
+#' In case you try to reproduce this script and you run into troubles with the 
+#' version of R or the packages, you can use the lockfile to restore the
+#' project to the state it was in when the snapshot was taken.
+#' To do so run the following command:
+
+# renv::restore()
 
 #### Q1: **Does P. acuminata exhibit a height-diameter relationship and, if so, what is the best model to fit this relationship?** ####
 
