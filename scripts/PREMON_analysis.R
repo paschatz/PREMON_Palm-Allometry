@@ -11,6 +11,8 @@ library(BIOMASS)
 library(viridis)
 library(FSA)
 library(tidyverse)
+library(ggpubr)
+library(ggExtra)
 
 data <- read.csv('clean_data/Data_for_analysis.csv')
 
@@ -31,14 +33,14 @@ fullmod_list <- mod_list
 
 ########## Model fitting ##########
 set.seed(30)
-for(i in 1:100) {
+for (i in 1:100) {
   # Partition data for cross validation
   test <- sample(1:nrow(data),
                  size = ceiling (nrow(data) * 0.632),
                  replace = FALSE)
   fit <- data[rownames(data) %in% test, ]
   val <- data[!rownames(data) %in% test, ]
-  
+
   # Fit models on partitioned data
   mod_list[[1]][[i]] <- lm(height ~ dbh, data = fit)
   mod_list[[2]][[i]] <- lm(height ~ log(dbh), data = fit)
@@ -50,15 +52,15 @@ for(i in 1:100) {
                                 H = fit$height,
                                 method = "weibull",
                                 useWeight = TRUE)$model
-  
+
   # Evaluate models on partitioned data
   # Compute correction factor for log-transformed prediction
-  for(j in 1:6){
-    if(j %in% c(3, 5, 6)){
+  for (j in 1:6){
+    if (j %in% c(3, 5, 6)) {
       cf <- logbtcf(mod_list[[j]][[i]])
-      } else {
+    } else {
         cf <- 1
-        }
+    }
     val_pred <- cf * predict(mod_list[[j]][[i]], newdata = data.frame(dbh = val$dbh))
     mod_list[[j]][[i]]$rmse <- sqrt(sum((val_pred - val$height)^2) / nrow(val))
   }
@@ -73,8 +75,7 @@ fullmod_list[[3]] <- lm(log(height) ~ log(dbh), data = data)
 fullmod_list[[4]] <- nls(height ~ a * (dbh ^ b), data = data, start = list(a = 1, b = 1))
 fullmod_list[[5]] <- lm(log(height) ~ I(log(dbh)^2), data = data)
 fullmod_list[[6]] <- lm(log(height) ~ log(dbh) + I(log(dbh)^2), data = data)
-fullmod_list[[7]] <- modelHD(D = data$dbh, H = data$height,
-                             method="weibull", useWeight = TRUE)$model
+fullmod_list[[7]] <- modelHD(D = data$dbh, H = data$height, method = "weibull", useWeight = TRUE)$model
 
 ########## Compute AIC (full data) ##########
 AIC_table <- data.frame(AIC=round(do.call(rbind, lapply(fullmod_list, AIC)), 2))
@@ -153,8 +154,8 @@ for(i in 1:100) {
                                    method = "weibull",
                                    useWeight = TRUE)$model
   
-  # Evaluate models on partitioned data
-  # Compute correction factor for log-transformed prediction
+# Evaluate models on partitioned data
+# Compute correction factor for log-transformed prediction
   for(j in 1:6){
     if(j %in% c(3, 5, 6)){
       cf <- logbtcf(bd_mod_list[[j]][[i]])
@@ -473,11 +474,15 @@ legend('right', legend=c("Frangi & Lugo (1985)",
        pt.bg=scales::alpha(viridis(3), 0.2))
 
 boxplot(data$agb_FL_measured, data$agb_Goodman, data$agb_Avalos, 
-        col=viridis(3), horizontal=TRUE, add=TRUE, 
-        at=c(0.0325, 0.03, 0.0275), 
-        boxwex = 0.002, axes=F, outcol=viridis(3))
+      col = viridis(3),
+      horizontal = TRUE,
+      add = TRUE,
+      at = c(0.0325, 0.03, 0.0275),
+      boxwex = 0.002,
+      axes = F,
+      outcol = viridis(3))
 
-dev.off()
+      dev.off()
 
 # What is the median and sd of difference values between the different model estimates?
 round(median(data$agb_Goodman - data$agb_FL_measured), 2)
@@ -488,31 +493,24 @@ round(sd(data$agb_Avalos - data$agb_FL_measured), 2)
 
 # **Q4: How does AGB of P. acuminata change during a 30 year period following a major hurricane period?** ####
 
-
 # Load census data with the [EDUutils](https://docs.ropensci.org/EDIutils/) library
 
-raw1 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", 
-                         entityId = "041867f47c9c037a510c082cfa577c78")
+raw1 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", entityId = "041867f47c9c037a510c082cfa577c78")
 census1 <- readr::read_csv(file = raw1)
 
-raw2 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", 
-                         entityId = "30e32ee3908061ee549ccc797cd4595f")
+raw2 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", entityId = "30e32ee3908061ee549ccc797cd4595f")
 census2 <- readr::read_csv(file = raw2)
 
-raw3 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", 
-                         entityId = "c4cc8b395ca45deeda6572b8cb621881")
+raw3 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", entityId = "c4cc8b395ca45deeda6572b8cb621881")
 census3 <- readr::read_csv(file = raw3)
 
-raw4 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", 
-                         entityId = "2d259e63e4de0c7a9b6cf6d57d32d3b8")
+raw4 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", entityId = "2d259e63e4de0c7a9b6cf6d57d32d3b8")
 census4 <- readr::read_csv(file = raw4)
 
-raw5 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", 
-                         entityId = "41cde6946e1f87efb10582dd273c6a30")
+raw5 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", entityId = "41cde6946e1f87efb10582dd273c6a30")
 census5 <- readr::read_csv(file = raw5)
 
-raw6 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", 
-                         entityId = "325c43057e0dd4e1cd6a13fa5125a76d")
+raw6 <- read_data_entity(packageId = "knb-lter-luq.119.1545979", entityId = "325c43057e0dd4e1cd6a13fa5125a76d")
 census6 <- readr::read_csv(file = raw6)
 
 lfdp <- rbind(census1, census2, census3, census4, census5, census6)
@@ -521,36 +519,38 @@ lfdp <- rbind(census1, census2, census3, census4, census5, census6)
 lfdp$DBH <- lfdp$DBH * 0.1 
 
 # Calculate basal area
-lfdp$basal_area <- (pi*((lfdp$DBH/2)^2)/10000) #m^2
+lfdp$basal_area <- (pi * ((lfdp$DBH / 2) ^ 2) / 10000) #m^2
 
 ### Calculate non-palm AGB using the BIOMASS package
 # Get wood density values for non-palm trees
-wd <- getWoodDensity(genus = unlist(lapply(strsplit(lfdp$Latin, " "), function(x)x[[1]])),
-                species = unlist(lapply(strsplit(lfdp$Latin, " "), function(x)x[[2]])))
+wd <- getWoodDensity(genus = unlist(lapply(strsplit(lfdp$Latin, " "), 
+                     function(x) x[[1]])),
+      species = unlist(lapply(strsplit(lfdp$Latin, " "), 
+                     function(x) x[[2]])))
 
 # Compute AGB
 # might be necessary to lead library(httr2)
-lfdp$AGB <- computeAGB(lfdp$DBH, 
-                       WD= wd$meanWD, 
-                       coord=c(-65.8246, 18.3214))
+lfdp$AGB <- computeAGB(lfdp$DBH, WD = wd$meanWD, 
+                       coord = c(-65.8246, 18.3214))
 
 # Make sure AGB for palms computed in this way is NA
-lfdp$AGB[lfdp$Mnemonic=='PREMON'] <- NA
+lfdp$AGB[lfdp$Mnemonic == 'PREMON'] <- NA
 
 ### Estimate palm biomass
 # Drop all palms with height of measurement below 1m and >1.6m .
-premon_total <- subset(lfdp, Latin=="Prestoea acuminata" & 
-                         !is.na(lfdp$DBH) & 
-                         lfdp$HOM >= 1 &
-                         lfdp$HOM <= 1.6)
+premon_total <- subset(lfdp, Latin == "Prestoea acuminata" & 
+                             !is.na(lfdp$DBH) & 
+                             lfdp$HOM >= 1 &
+                             lfdp$HOM <= 1.6)
 
 # Estimate height using the best palm H:D model from this study
 cf <- logbtcf(fullmod_list$`loglogquad-1`)
-premon_total$height_est <- cf * exp(predict(fullmod_list$`loglogquad-1`, data.frame(dbh=premon_total$DBH)))
+premon_total$height_est <- cf * exp(predict(fullmod_list$`loglogquad-1`, 
+                                            data.frame(dbh = premon_total$DBH)))
 
 # Estimate the lower and upper bounds of height to quantify a range of uncertainty
-premon_total$height_est_min <- cf * exp(predict(fullmod_list$`loglogquad-1`, data.frame(dbh=premon_total$DBH), interval = 'confidence'))[,2]
-premon_total$height_est_max <- cf * exp(predict(fullmod_list$`loglogquad-1`, data.frame(dbh=premon_total$DBH), interval = 'confidence'))[,3]
+premon_total$height_est_min <- cf * exp(predict(fullmod_list$`loglogquad-1`, data.frame(dbh = premon_total$DBH), interval = 'confidence'))[, 2]
+premon_total$height_est_max <- cf * exp(predict(fullmod_list$`loglogquad-1`, data.frame(dbh = premon_total$DBH), interval = 'confidence'))[, 3]
 
 # Estimate palm biomass using the Frangi & Lugo (1985) model
 premon_total$agb_lugo <- 4.5 + 7.7 * premon_total$height_est
@@ -564,24 +564,25 @@ premon_total$agb_goodman <- exp(-3.3488 + 2.7483 * log(premon_total$DBH))
 # Measured DBH with the Avalos et al. (2022) family-wise AGB model
 premon_total$agb_avalos <- 2 * (1.4 * exp(-4.77 + 2.82 * log(premon_total$DBH)))
 
-lugo <- tapply((premon_total$agb_lugo/1000)/16, 
-               premon_total$Census, sum, na.rm=TRUE)
-lugo_min <- tapply((premon_total$agb_lugo_min/1000)/16, 
-               premon_total$Census, sum, na.rm=TRUE)
-lugo_max <- tapply((premon_total$agb_lugo_max/1000)/16, 
-                   premon_total$Census, sum, na.rm=TRUE)
+lugo <- tapply((premon_total$agb_lugo / 1000) / 16, 
+                premon_total$Census, sum, na.rm = TRUE)
 
-goodman <- tapply((premon_total$agb_goodman/1000)/16,
-                  premon_total$Census, sum, na.rm.=TRUE)
+lugo_min <- tapply((premon_total$agb_lugo_min / 1000) / 16, 
+                    premon_total$Census, sum, na.rm = TRUE)
 
-avalos <- tapply((premon_total$agb_avalos/1000)/16, 
-                  premon_total$Census, sum, na.rm.=TRUE)
+lugo_max <- tapply((premon_total$agb_lugo_max / 1000) / 16, 
+                    premon_total$Census, sum, na.rm = TRUE)
 
-bio_dif <- rbind(NA, 
-                 ((goodman - lugo) / (lugo)) * 100,
-                 ((avalos - lugo) / (lugo)) * 100)
+goodman <- tapply((premon_total$agb_goodman / 1000) / 16,
+                   premon_total$Census, sum, na.rm = TRUE)
 
-round(100*(lugo_max - lugo_min)/lugo, 2)
+avalos <- tapply((premon_total$agb_avalos / 1000) / 16, 
+                  premon_total$Census, sum, na.rm = TRUE)
+
+bio_dif <- rbind(NA, ((goodman - lugo) / (lugo)) * 100,
+                     ((avalos - lugo) / (lugo)) * 100)
+
+round(100 * (lugo_max - lugo_min) / lugo, 2)
 
 # Figure 4 ####
 pdf("figures/Figure_4.pdf")
@@ -590,169 +591,167 @@ Y <- barplot(rbind(lugo, goodman, avalos), beside = TRUE,
              names.arg = c("1990", "1994", "2000", "2005", "2011", "2016"),
              col = viridis(3),
              ylab = "Palm Above Ground Biomass (Mg / ha) in the LFDP", 
-             ylim = c(0,35), xlab = "Census", main = "")
+             ylim = c(0, 35), xlab = "Census", main = "")
 
-arrows(Y[1,], lugo_min, Y[1,], lugo_max, angle = 90, code=3, len=0.05)
-arrows(Y[1,], lugo, Y[1,], lugo_min, angle = 90, code=2, len=0.05, col='white')
+arrows(Y[1, ], lugo_min, Y[1, ], lugo_max, angle = 90, code = 3, len = 0.05)
+arrows(Y[1, ], lugo, Y[1, ], lugo_min, angle = 90, code = 2, len = 0.05, col = 'white')
 
 legend('topleft', legend = c("Frangi and Lugo (1985)", 
                              "Goodman et al. (2013)",
                              "Avalos et al. (2022)"), 
-       fill = viridis(3), 
-       bty = "n", pt.cex = 2)
-axis(1, at = Y[2,], labels = F)
+                  fill = viridis(3), 
+                  bty = "n", pt.cex = 2)
+                  axis(1, at = Y[2, ], labels = F)
+
 pct <- round(bio_dif, 1)
-text(Y[2,], goodman-0.5, labels = paste0(pct[2,],"%"), pos=3, cex=0.65)
-text(Y[3,]+0.25, avalos-0.5, labels = paste0(pct[3,],"%"), pos=3, cex=0.65)
+
+text(Y[2, ], goodman - 0.5, labels = paste0(pct[2, ], "%"), 
+     pos = 3, cex = 0.65)
+
+text(Y[3, ] + 0.25, avalos - 0.5, labels = paste0(pct[3, ], "%"), 
+     pos = 3, cex = 0.65)
 
 dev.off()
 
 # Descriptive Figure 5 with (A) stem density, (B) basal area, and (C) AGB ####
 
-dev.off()
-
 pdf("figures/Figure_5.pdf", width = 7, height = 5)
 
 Year <- c(1990, 1994, 2000, 2005, 2011, 2016)
 
-par(mfrow=c(2,3), mar=c(4,4,1,1))
+par(mfrow = c(2, 3), mar = c(4, 4, 1, 1))
 
 ### Absolute value plots
 # Stem density
-plot(Year, as.vector(table(lfdp$Census[!is.na(lfdp$DBH)]))/16, type='b', log='', 
-     ylim=c(100, 8000), axes=F, pch=16,
-     ylab="Stems per ha", )
-points(Year, as.vector(table(premon_total$Census[!is.na(lfdp$DBH)]))/16, type='b', col='blue', pch=16)
-legend('topright', legend=c("All LFDP stems", "P. acuminata"), text.font=c(1,3),
-       col=c(1,'blue'), pch=1, lty=1, bty='n')
-axis(1); axis(2, las=2)
-mtext("A", line=-1, adj=0.05, font=2)
+plot(Year, as.vector(table(lfdp$Census[!is.na(lfdp$DBH)])) / 16, type = 'b', log = '', 
+                   ylim = c(100, 8000), axes = F, pch = 16,
+                   ylab = "Stems per ha", )
+
+points(Year, as.vector(table(premon_total$Census[!is.na(lfdp$DBH)])) / 16,
+             type = 'b', col = 'blue', pch = 16)
+
+legend('topright', legend = c("All LFDP stems", "P. acuminata"), 
+             text.font = c(1, 3),
+                         col = c(1, 'blue'), pch = 1, lty = 1, bty = 'n')
+axis(1); axis(2, las = 2)
+mtext("A", line = -1, adj = 0.05, font = 2)
 
 # Basal area
-plot(Year, tapply(lfdp$basal_area[!is.na(lfdp$DBH)], 
-                   lfdp$Census[!is.na(lfdp$DBH)], 
-                   sum, na.rm=T)/16, type='b', 
-     ylim=c(0, 50),
-     axes=F, pch=16,
-     ylab="Basal area (m^2) per ha", )
+plot(Year, tapply(lfdp$basal_area[!is.na(lfdp$DBH)], lfdp$Census[!is.na(lfdp$DBH)], 
+           sum, na.rm = T) / 16, type = 'b', 
+    ylim = c(0, 50),
+    axes = F, pch = 16,
+    ylab = "Basal area (m^2) per ha", )
+
 points(Year, tapply(premon_total$basal_area[!is.na(premon_total$DBH)], 
-                     premon_total$Census[!is.na(premon_total$DBH)], 
-                     sum, na.rm=T)/16, type='b', col='blue', pch=16)
-axis(1); axis(2, las=2)
-mtext("B", line=-1, adj=0.05, font=2)
+                    premon_total$Census[!is.na(premon_total$DBH)], 
+                    sum, na.rm = T) / 16, type = 'b', col = 'blue', pch = 16)
+
+axis(1); axis(2, las = 2)
+mtext("B", line = -1, adj = 0.05, font = 2)
 
 # AGB
 plot(Year, tapply(lfdp$AGB[!is.na(lfdp$DBH)], 
-                   lfdp$Census[!is.na(lfdp$DBH)], 
-                   sum, na.rm=T)/16, type='b', 
-     ylim=c(0, 350),
-     axes=F,
-     ylab="Estimated AGB (Mg per ha)", pch=16)
+                  lfdp$Census[!is.na(lfdp$DBH)], 
+                  sum, na.rm = T) / 16, type = 'b', 
+           ylim = c(0, 350),
+           axes = F,
+           ylab = "Estimated AGB (Mg per ha)", pch = 16)
+
 points(Year, (tapply(premon_total$agb_lugo[!is.na(premon_total$DBH)], 
                      premon_total$Census[!is.na(premon_total$DBH)], 
-                     sum, na.rm=T)/16)/1000, type='b', col='blue', pch=16)
-axis(1); axis(2, las=2)
-mtext("C", line=-1, adj=0.05, font=2)
+      sum, na.rm = T) / 16) / 1000, type = 'b', col = 'blue', pch = 16)
+      axis(1); axis(2, las = 2)
+
+mtext("C", line = -1, adj = 0.05, font = 2)
 
 ### Proportional plots
 # Stem density
-plot(Year, (as.vector(table(premon_total$Census[!is.na(lfdp$DBH)])))/
-       (as.vector(table(lfdp$Census[!is.na(lfdp$DBH)]))), type='b', 
-     ylim=c(0,1), 
-     axes=F,
-     ylab="Palm proportion of stems", col='red', pch=16)
 
-axis(1); axis(2, las=2)
-mtext("D", line=-1, adj=0.05, font=2)
+plot(Year, (as.vector(table(premon_total$Census[!is.na(lfdp$DBH)]))) /
+           (as.vector(table(lfdp$Census[!is.na(lfdp$DBH)]))), type = 'b', 
+           ylim = c(0, 1), 
+           axes = F,
+           ylab = "Palm proportion of stems", col = 'red', pch = 16)
+
+axis(1); axis(2, las = 2)
+mtext("D", line = -1, adj = 0.05, font = 2)
 
 # Basal area
 plot(Year, (tapply(premon_total$basal_area[!is.na(premon_total$DBH)], 
-                    premon_total$Census[!is.na(premon_total$DBH)], 
-                    sum, na.rm=T)/16)/
-       (tapply(lfdp$basal_area[!is.na(lfdp$DBH)], 
-               lfdp$Census[!is.na(lfdp$DBH)], 
-               sum, na.rm=T)/16), type='b', 
-     ylim=c(0,1), axes=F,
-     ylab="Palm proportion of basal area", col='red', pch=16)
+                   premon_total$Census[!is.na(premon_total$DBH)], 
+            sum, na.rm = T) / 16) / (tapply(lfdp$basal_area[!is.na(lfdp$DBH)], 
+            lfdp$Census[!is.na(lfdp$DBH)], 
+            sum, na.rm = T) / 16), type = 'b', 
+            ylim = c(0, 1), axes = F,
+            ylab = "Palm proportion of basal area", col = 'red', pch = 16)
 
-axis(1); axis(2, las=2)
-mtext("E", line=-1, adj=0.05, font=2)
+axis(1); axis(2, las = 2)
+mtext("E", line = -1, adj = 0.05, font = 2)
 
 # AGB
 plot(Year, ((tapply(premon_total$agb_lugo[!is.na(premon_total$DBH)], 
-                     premon_total$Census[!is.na(premon_total$DBH)], 
-                     sum, na.rm=T)/16)/1000)/
-       (tapply(lfdp$AGB[!is.na(lfdp$DBH)], 
-               lfdp$Census[!is.na(lfdp$DBH)], 
-               sum, na.rm=T)/16), type='b', 
-     ylim=c(0,1), axes=F,
-     ylab="Palm proportion of total estimated AGB", col = 'red', pch = 16)
+                    premon_total$Census[!is.na(premon_total$DBH)], 
+            sum, na.rm = T) / 16) / 1000) / (tapply(lfdp$AGB[!is.na(lfdp$DBH)], 
+            lfdp$Census[!is.na(lfdp$DBH)], 
+            sum, na.rm = T) / 16), type = 'b', 
+            ylim = c(0, 1), axes = F,
+      ylab = "Palm proportion of total estimated AGB", col = 'red', pch = 16)
+
 axis(1); axis(2, las = 2)
 mtext("F", line = -1, adj = 0.05, font = 2)
 
 dev.off()
-
 
 # Supplemental Figures ####
 # Figure S1 ####
 
 pdf("figures/Figure_S1.pdf")
 
-library(ggpubr)
-library(ggExtra)
-
 # Raw height:DBH plot
 raw_dbh <- ggplot(data, aes(x = dbh, y = height)) +
-  geom_point(size=2, shape=20, color = "gray45") +
-  xlab("") +
-  ylab("Stem Height (m)") + 
-  theme_minimal()
+            geom_point(size = 2, shape = 20, color = "gray45") +
+            xlab("") +
+            ylab("Stem Height (m)") + 
+            theme_minimal()
 
 # DBH density plot
 den_dbh <- ggplot(data, aes(x = dbh)) + 
-  geom_histogram(aes(y = ..density..),
-                 binwidth = 0.5, #breaks
-                 colour = "black", fill = "white") +
-  geom_density(alpha = 0.5, #density transparency
-               color = "black", fill = "blue") +
-  xlab("DBH (cm)") + 
-  ylab("Density") + 
-  theme_minimal()
+            geom_histogram(aes(y = ..density..),
+            binwidth = 0.5, #breaks
+            colour = "black", fill = "white") +
+            geom_density(alpha = 0.5, #density transparency
+            color = "black", fill = "blue") +
+            xlab("DBH (cm)") + 
+            ylab("Density") + 
+            theme_minimal()
 
 # Raw height:basal_d plot
 raw_basal <- ggplot(data, aes(x = basal_d, y = height)) +
-  geom_point(size=2, shape=20, color = "gray45") + 
-  xlab("") + 
-  ylab("") + 
-  theme_minimal()
+            geom_point(size = 2, shape = 20, color = "gray45") + 
+            xlab("") + 
+            ylab("") + 
+            theme_minimal()
 
 # Basal_diameter density plot
-
 den_basal <- ggplot(data, aes(x = basal_d, na.rm = TRUE)) + 
-  geom_histogram(aes(y = ..density..),
-                 binwidth = 1, #breaks
-                 colour = "black", fill = "white") +
-  geom_density(alpha = 0.5, #density transparency
-               color = "black", fill = "red1") +
-  xlab("Basal diameter (cm)") + 
-  ylab("") + 
-  theme_minimal()
+            geom_histogram(aes(y = ..density..), binwidth = 1, #breaks
+            colour = "black", fill = "white") +
+            geom_density(alpha = 0.5, #density transparency
+            color = "black", fill = "red1") +
+            xlab("Basal diameter (cm)") + 
+            ylab("") + 
+            theme_minimal()
 
-t1 <- ggMarginal(raw_basal + 
-                   theme_gray() + 
-                   xlab("Basal Diameter (cm)") +
-                   ylab("Stem height (m)") +
-                   theme_minimal(), fill="lightblue")
+t1 <- ggMarginal(raw_basal + theme_gray() + xlab("Basal Diameter (cm)") +
+                 ylab("Stem height (m)") +
+                 theme_minimal(), fill = "lightblue")
 
-t2 <- ggMarginal(raw_dbh + 
-                   theme_gray() +
-                   xlab("DBH (cm)") + 
-                   ylab("Stem Height") + 
-                   theme_minimal(), fill = "tomato")
+t2 <- ggMarginal(raw_dbh + theme_gray() + xlab("DBH (cm)") + 
+                 ylab("Stem Height") + 
+                 theme_minimal(), fill = "tomato")
 
-ggarrange(t1, t2,
-          labels = c("A", "B"),
-          ncol = 1, nrow = 2)
+ggarrange(t1, t2, labels = c("A", "B"), ncol = 1, nrow = 2)
 
 dev.off()
 
@@ -761,11 +760,13 @@ dev.off()
 
 pdf("figures/Figure_S2.pdf")
 
-hist(census6$DBH[census6$Mnemonic == 'PREMON']/10, main = NA, 
-     xlab = "Diameter at breast height (D130) (cm)",
-     ylab = "Number of palms")
+hist(census6$DBH[census6$Mnemonic == 'PREMON'] / 10, main = NA, 
+                   xlab = "Diameter at breast height (D130) (cm)",
+                   ylab = "Number of palms")
+
 hist(data$dbh, add = TRUE, col = 2, breaks = 20)
+
 legend('topleft', legend = c("LFDP 2016 Census", "January 2020 sampling"), 
-       pch = 22, pt.bg = c('grey',2), pt.cex = 2, inset = 0.05)
+       pch = 22, pt.bg = c('grey', 2), pt.cex = 2, inset = 0.05)
 
 dev.off()
