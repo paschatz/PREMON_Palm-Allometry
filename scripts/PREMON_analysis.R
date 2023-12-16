@@ -248,6 +248,7 @@ mtext("A", line = -1, adj = 0.95, font = 2)
 nd <- data.frame(dbh = seq(0, 50, length.out = 1000))
 
 cf <- logbtcf(fullmod_list[[5]])
+
 lines(seq(1, 50, length.out = 1000),
       cf * exp(predict(fullmod_list[[5]], newdata = nd)),
       col = cols[5], lwd = 5, type = "l")
@@ -261,6 +262,7 @@ lines(seq(0,50,length.out = 1000),
       col = cols[2], lwd = 1.5, type = "l")
 
 cf <- logbtcf(fullmod_list[[3]])
+
 lines(seq(1, 50, length.out = 1000),
       cf * exp(predict(fullmod_list[[3]], newdata = nd)),
        col = cols[3], lwd = 1.5, type = "l")
@@ -270,6 +272,7 @@ lines(seq(1, 50, length.out = 1000),
       col = cols[4], lwd = 1.5, type = "l")
 
 cf <- logbtcf(fullmod_list[[6]])
+
 lines(seq(1, 50, length.out = 1000),
       cf * exp(predict(fullmod_list[[6]], newdata = nd)),
       col = cols[6], lwd = 1.5, type = "l")
@@ -783,4 +786,53 @@ hist(data$dbh, add = TRUE, col = 2, breaks = 20)
 legend('topleft', legend = c("LFDP 2016 Census", "January 2020 sampling"), 
        pch = 22, pt.bg = c('grey', 2), pt.cex = 2, inset = 0.05)
 
+dev.off()
+
+#### Graphical abstract ####
+
+# Panel A (DBH)
+pdf("figures/Graphical_abstract.pdf", width = 8, height = 6)  
+
+par(mar = c(6, 4, 4, 2) + 0.1)  
+
+plot(data$dbh, data$height,
+     main = "", xlab = "Diameter at Breast Height (DBH) - cm",
+     ylab = "Stem Height - m", pch = 16,
+     col = rgb(0, 0, 0, 0.15), ylim = c(0, 20), bty = "L")
+
+nd <- data.frame(dbh = seq(0, 50, length.out = 1000))
+
+title(main = expression('Advancing understanding of tropical forest carbon dynamics through improved H:D allometric models for '*italic(P.~accuminata)*''),
+      cex.main = 1.5, line = 2) 
+
+cf <- logbtcf(fullmod_list[[5]])
+lines(seq(1, 50, length.out = 1000),
+      cf * exp(predict(fullmod_list[[5]], newdata = nd)),
+      col = cols[5], lwd = 5, type = "l")
+
+lines(seq(0, 50, length.out = 1000),
+      predict(fullmod_list[[1]], newdata = nd),
+      col = cols[1], lwd = 1.5, type = "l")
+
+lines(seq(0,50,length.out = 1000),
+      predict(fullmod_list[[2]], newdata = nd),
+      col = cols[2], lwd = 1.5, type = "l")
+
+cf <- logbtcf(fullmod_list[[3]])
+lines(seq(1, 50, length.out = 1000),
+      cf * exp(predict(fullmod_list[[3]], newdata = nd)),
+      col = cols[3], lwd = 1.5, type = "l")
+
+lines(seq(1, 50, length.out = 1000),
+      predict(fullmod_list[[4]], newdata = nd),
+      col = cols[4], lwd = 1.5, type = "l")
+
+cf <- logbtcf(fullmod_list[[6]])
+lines(seq(1, 50, length.out = 1000),
+      cf * exp(predict(fullmod_list[[6]], newdata = nd)),
+      col = cols[6], lwd = 1.5, type = "l")
+
+lines(seq(1, 50, length.out = 1000),
+      predict(fullmod_list[[7]], newdata = data.frame(D = seq(1, 50, length.out = 1000))),
+      lwd = 1.5, col = cols[7])
 dev.off()
