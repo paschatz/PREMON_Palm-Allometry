@@ -41,6 +41,9 @@ The resulting cleaned dataset is then saved as "raw_data/Data_for_analysis.csv" 
 - Smith C (2023). _EDIutils: An API Client for the Environmental Data
   Initiative Repository in R_. <https://github.com/ropensci/EDIutils>.
 
+- Ushey K, Wickham H (2023). _renv: Project Environments_. R package
+  version 1.0.3, <https://CRAN.R-project.org/package=renv>.
+
 - Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R,
   Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller
   E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V,
