@@ -14,7 +14,7 @@ Aboveground biomass, Arecaceae, environmental heterogeneity, forest dynamics, ne
 
 To cite this repository:
 
-- Paschalis Chatzopoulos and Bob Muscarella. Paschatz/premon_palm-allometry: Height-diameter Allometry for a Dominant Palm to Improve Understanding of Carbon and Forest Dynamics in Forests of Puerto Rico. v1.0.0, Zenodo, 15 Dec. 2023, doi:10.5281/zenodo.10390498.
+- Chatzopoulos, P., & Muscarella, R. (2023). paschatz/PREMON_Palm-Allometry: Height-diameter allometry for a dominant palm to improve understanding of carbon and forest dynamics in forests of Puerto Rico (Version v1.1.0) [Computer software]. https://doi.org/10.5281/zenodo.10395626
 
 ### Folder description:
 - ```clean_data``` = Here you can find the clean data that we used for our analysis. This data are an export of ```scripts/PREMON_data_prep.r``` script.
