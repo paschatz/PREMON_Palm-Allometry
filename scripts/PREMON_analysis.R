@@ -14,6 +14,7 @@ library(FSA)
 library(tidyverse)
 library(ggpubr)
 library(ggExtra)
+library(httr2)
 
 data <- read.csv('clean_data/Data_for_analysis.csv')
 
@@ -790,7 +791,7 @@ dev.off()
 
 #### Graphical abstract ####
 
-# Panel A (DBH)
+# Same as figure 1, without legend
 pdf("figures/Graphical_abstract.pdf", width = 8, height = 6)  
 
 par(mar = c(6, 4, 4, 2) + 0.1)  
@@ -801,9 +802,6 @@ plot(data$dbh, data$height,
      col = rgb(0, 0, 0, 0.15), ylim = c(0, 20), bty = "L")
 
 nd <- data.frame(dbh = seq(0, 50, length.out = 1000))
-
-title(main = expression('Advancing understanding of tropical forest carbon dynamics through improved H:D allometric models for '*italic(P.~accuminata)*''),
-      cex.main = 1.5, line = 2) 
 
 cf <- logbtcf(fullmod_list[[5]])
 lines(seq(1, 50, length.out = 1000),
