@@ -16,6 +16,10 @@ To cite this repository:
 
 - Chatzopoulos, P., & Muscarella, R. (2023). paschatz/PREMON_Palm-Allometry: Height-diameter allometry for a dominant palm to improve understanding of carbon and forest dynamics in forests of Puerto Rico (Version v1.1.0) [Computer software]. https://doi.org/10.5281/zenodo.10395626
 
+To cite our data:
+
+- Muscarella, R., P. Chatzopoulos, and R. Lammerant. 2023. Measurements of height, diameter at breast height and basal diameter for *Prestoea acuminata* at the Luquillo Forest Dynamics Plot (LFDP), Puerto Rico in January 2020. ver 2. Environmental Data Initiative. https://doi.org/10.6073/pasta/7c635efb584b1d254d8b713361b13ad0 (Accessed 2023-12-21).
+
 ### Folder description:
 - ```clean_data``` = Here you can find the clean data that we used for our analysis. This data are an export of ```scripts/PREMON_data_prep.r``` script.
 
