@@ -30,3 +30,5 @@ To cite our data:
 - ```tables``` = Here you can find the exported tables from the ```scripts/PREMON_analysis_script.R``` script.
 
 - ```raw_data``` = Here you can find the raw data that we used for our analysis.
+
+- ```renv``` = Here is stored a reproducible R environemnt. Users can reproduce the exact versions of r-packages we used during the analysis. This is an export of [renv](https://rstudio.github.io/renv/articles/renv.html) package.
