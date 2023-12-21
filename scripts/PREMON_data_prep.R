@@ -1,10 +1,26 @@
-####  Clean and merge raw data files for analysis data
+####  Clean and merge raw data files for data analysis ####
+# Here you can find the code used to clean and merge the raw data files for 
+# data analysis. 
+# To cite our data package please use:
+
+# Muscarella, R., P. Chatzopoulos, and R. Lammerant. 2023. Measurements of height,
+# diameter at breast height and basal diameter for Prestoea acuminata at the 
+# Luquillo Forest Dynamics Plot (LFDP), Puerto Rico in January 2020. ver 2. 
+# Environmental Data Initiative.
+# https://doi.org/10.6073/pasta/7c635efb584b1d254d8b713361b13ad0 (Accessed 2023-12-20).
+
+# Load packages
 library(EDIutils)
 library(readr)
 library(tidyverse)
 
-## Read field data
-data_raw <- read_csv("raw_data/palm_allometry.csv")
+## Load raw data
+# Load data package ID from EDI repository
+res <- read_data_entity_names(packageId = "knb-lter-luq.233.2")
+# Access raw data
+raw <- read_data_entity(packageId = "knb-lter-luq.233.2", entityId = res$entityId)
+# Save raw data in machine readable format
+data_raw <- readr::read_csv(file = raw)
 
 # Data for manipulation
 data <- data_raw
@@ -53,9 +69,10 @@ data$nci <- nci$nci[match(data$Tag, nci$Tag)]
 # Calculate slenderness ratio (SR)
 data$SR <- data$height/(data$dbh*0.01)
 
-# write.csv(data, "Data_for_analysis-including-small-palms.csv", row.names = F)
+# write.csv(data, "Data_for_analysis-including-small-palms.csv", row.names = FALSE)
 
 # Remove palms shorter than 1.3 m and where dbh was measured somewhere else than 1.3 m
 data <- data[data$height >= 1.3 &  data$h_dbh == 1.30,]
 
 write.csv(data, "clean_data//Data_for_analysis.csv", row.names = FALSE)
+# END

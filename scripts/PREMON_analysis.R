@@ -87,10 +87,12 @@ for (i in 1:100) {
 fullmod_list[[1]] <- lm(height ~ dbh, data = data)
 fullmod_list[[2]] <- lm(height ~ log(dbh), data = data)
 fullmod_list[[3]] <- lm(log(height) ~ log(dbh), data = data)
-fullmod_list[[4]] <- nls(height ~ a * (dbh ^ b), data = data, start = list(a = 1, b = 1))
+fullmod_list[[4]] <- nls(height ~ a * (dbh ^ b), data = data, 
+                         start = list(a = 1, b = 1))
 fullmod_list[[5]] <- lm(log(height) ~ I(log(dbh)^2), data = data)
 fullmod_list[[6]] <- lm(log(height) ~ log(dbh) + I(log(dbh)^2), data = data)
-fullmod_list[[7]] <- modelHD(D = data$dbh, H = data$height, method = "weibull", useWeight = TRUE)$model
+fullmod_list[[7]] <- modelHD(D = data$dbh, 
+                             H = data$height, method = "weibull", useWeight = TRUE)$model
 
 ########## Compute AIC (full data) ##########
 AIC_table <- data.frame(AIC=round(do.call(rbind, lapply(fullmod_list, AIC)), 2))
