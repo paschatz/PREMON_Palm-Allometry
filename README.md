@@ -12,6 +12,10 @@ Aboveground biomass, Arecaceae, environmental heterogeneity, forest dynamics, ne
 
 ## Citations:
 
+To cite our manuscript:
+
+- Chatzopoulos, P., Lammerant, R., Thompson, J., Uriarte, M., Zimmerman, J. K., & Muscarella, R. (2024). Height–diameter allometry for a dominant palm to improve understanding of carbon and forest dynamics in forests of Puerto Rico. Biotropica, 00, 1–12. https://doi.org/10.1111/btp.13297
+
 To cite this repository:
 
 - Chatzopoulos, P., & Muscarella, R. (2023). paschatz/PREMON_Palm-Allometry: Height-diameter allometry for a dominant palm to improve understanding of carbon and forest dynamics in forests of Puerto Rico (v2.0.0). Zenodo. https://doi.org/10.5281/zenodo.10417497
